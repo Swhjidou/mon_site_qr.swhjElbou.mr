@@ -5,87 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>swh.mr</title>
+
     <meta property="og:title" content="swh.mr">
     <meta property="og:site_name" content="swh.mr">
-    <meta property="og:description" content="Galerie Sécurisée">
+    <meta property="og:description" content="Ma Galerie Photos Synchronisée">
+    <meta property="og:type" content="website">
 
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            text-align: center; 
-            background-color: #f4f7f6; 
-            margin: 0; 
-            padding: 20px;
-            user-select: none; /* Empêche la sélection de texte */
-            -webkit-user-select: none;
-            transition: filter 0.3s;
-        }
-
-        h1 { color: #1a73e8; }
-
-        /* Grille des miniatures */
-        .gallery { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-            gap: 15px; 
-            max-width: 900px; 
-            margin: 20px auto; 
-            position: relative;
-        }
-
-        .gallery img { 
-            width: 100%; height: 150px; object-fit: cover; 
-            border-radius: 10px; cursor: pointer; transition: 0.3s;
-            border: 4px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Filigrane (Watermark) de protection */
-        body::before {
-            content: "swh.mr - Propriété Privée";
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 40px;
-            color: rgba(0,0,0,0.05); /* Très léger pour ne pas gêner la vue */
-            pointer-events: none;
-            z-index: 9999;
-            white-space: nowrap;
-        }
-
-        /* Le Modale Plein Écran */
-        .modele {
-            display: none; position: fixed; z-index: 1000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            justify-content: center; align-items: center;
-        }
-
-        .modele-contenu {
-            max-width: 95%; max-height: 85%;
-            border-radius: 5px; border: 2px solid rgba(255,255,255,0.5);
-        }
-
-        .fermer {
-            position: absolute; top: 20px; right: 35px;
-            color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;
-        }
-
-        /* Navigation */
-        .nav-gauche, .nav-droite {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            color: white; font-size: 50px; font-weight: bold;
-            padding: 30px; cursor: pointer; user-select: none;
-            transition: 0.3s;
-        }
-        .nav-gauche:hover, .nav-droite:hover { color: #1a73e8; }
-        .nav-gauche { left: 0; }
-        .nav-droite { right: 0; }
+        /* Garde ton style CSS actuel ici */
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        /* ... (le reste de ton CSS) ... */
     </style>
 </head>
-<body oncontextmenu="return false;"> <h1>Ma Galerie Sécurisée</h1>
-    <p>Visualisation protégée par swh.mr</p>
+<body>
 
+    <h1>Ma Galerie</h1>
     <div class="gallery">
         <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
         <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
@@ -107,6 +41,8 @@
         const photos = document.querySelectorAll('.gallery img');
         const modele = document.getElementById("modele");
         const imageModele = document.getElementById("imageModele");
+
+        // Variables pour le tactile (Swipe)
         let xDebut = null;
 
         function ouvrirPleinEcran(index) {
@@ -129,16 +65,7 @@
             imageModele.src = photos[indexActuel].src;
         }
 
-        // --- PROTECTION : FLOU SI ON QUITTE L'ONGLET ---
-        document.addEventListener("visibilitychange", function() {
-            if (document.hidden) {
-                document.body.style.filter = "blur(15px)";
-            } else {
-                document.body.style.filter = "none";
-            }
-        });
-
-        // --- CLAVIER ---
+        // --- GESTION DU CLAVIER ---
         document.addEventListener('keydown', (e) => {
             if (modele.style.display === "flex") {
                 if (e.key === "ArrowRight") photoSuivante();
@@ -147,17 +74,29 @@
             }
         });
 
-        // --- SWIPE TACTILE ---
-        modele.addEventListener('touchstart', (e) => { xDebut = e.touches[0].clientX; }, false);
+        // --- GESTION DU TACTILE (SWIPE) ---
+        modele.addEventListener('touchstart', (e) => {
+            xDebut = e.touches[0].clientX;
+        }, false);
+
         modele.addEventListener('touchend', (e) => {
             if (!xDebut) return;
+
             let xFin = e.changedTouches[0].clientX;
-            let diff = xDebut - xFin;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) photoSuivante(); else photoPrecedente();
+            let difference = xDebut - xFin;
+
+            // Si le glissement est assez long (plus de 50 pixels)
+            if (Math.abs(difference) > 50) {
+                if (difference > 0) {
+                    photoSuivante(); // Glissé vers la gauche -> Photo suivante
+                } else {
+                    photoPrecedente(); // Glissé vers la droite -> Photo précédente
+                }
             }
-            xDebut = null;
+            xDebut = null; // Réinitialisation
         }, false);
+
+
     </script>
 </body>
 </html>
