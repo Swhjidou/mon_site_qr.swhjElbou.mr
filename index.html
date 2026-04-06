@@ -1,102 +1,138 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>swh.mr</title>
+<!DOCTYPE html> <html lang="fr"> <head>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>swh.mr</title> <meta property="og:title" content="swh.mr"> <meta property="og:site_name" content="swh.mr"> <meta property="og:description" content="Ma Galerie Photos"> <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; /* Définit la police d'écriture */
+            text-align: center; /* Centre tous les textes par défaut */
+            background-color: #f4f7f6; /* Définit une couleur de fond gris très clair */
+            margin: 0; /* Supprime les marges par défaut du navigateur */
+            padding: 20px; /* Ajoute un espace de 20px tout autour du contenu */
+        }
 
-    <meta property="og:title" content="swh.mr">
-    <meta property="og:site_name" content="swh.mr">
-    <meta property="og:description" content="Ma Galerie Photos Synchronisée">
-    <meta property="og:type" content="website">
+        h1 { color: #1a73e8; } /* Définit la couleur bleue pour le titre principal */
 
-    <style>
-        /* Garde ton style CSS actuel ici */
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        /* ... (le reste de ton CSS) ... */
+        /* Grille des miniatures */
+        .gallery { 
+            display: grid; /* Utilise le mode grille pour l'alignement */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Crée des colonnes automatiques de 150px minimum */
+            gap: 15px; /* Espace de 15px entre chaque photo */
+            max-width: 900px; /* Largeur maximale de la galerie sur un grand écran */
+            margin: 20px auto; /* Centre la grille horizontalement */
+        }
+
+        .gallery img { 
+            width: 100%; /* La photo prend toute la largeur de sa colonne */
+            height: 150px; /* Fixe la hauteur des miniatures */
+            object-fit: cover; /* Recadre proprement l'image pour remplir le carré sans la déformer */
+            border-radius: 10px; /* Arrondit les coins des photos */
+            cursor: pointer; /* Change le curseur en main au survol */
+            transition: 0.3s; /* Durée de l'animation lors du survol */
+            border: 4px solid white; /* Ajoute un cadre blanc autour des photos */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Ajoute une ombre légère sous les photos */
+        }
+
+        .gallery img:hover { transform: scale(1.05); } /* Agrandit légèrement la photo quand on passe la souris dessus */
+
+        /* Fenêtre Plein Écran (Modale) */
+        .modele {
+            display: none; /* Cache la fenêtre par défaut */
+            position: fixed; /* Fixe la fenêtre par-dessus tout le reste */
+            z-index: 1000; /* S'assure que la fenêtre est au premier plan */
+            left: 0; top: 0; /* Aligne la fenêtre en haut à gauche */
+            width: 100%; height: 100%; /* Prend toute la taille de l'écran */
+            background-color: rgba(0,0,0,0.9); /* Fond noir transparent à 90% */
+            justify-content: center; /* Centre l'image horizontalement */
+            align-items: center; /* Centre l'image verticalement */
+        }
+
+        .modele-contenu {
+            max-width: 90%; /* L'image en grand ne dépasse pas 90% de la largeur */
+            max-height: 80%; /* L'image en grand ne dépasse pas 80% de la hauteur */
+            border-radius: 5px; /* Coins légèrement arrondis pour l'image agrandie */
+            border: 3px solid white; /* Cadre blanc autour de la grande image */
+        }
+
+        .fermer {
+            position: absolute; top: 20px; right: 35px; /* Place la croix en haut à droite */
+            color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; /* Style de la croix */
+        }
+
+        /* Boutons fléchés de Navigation */
+        .nav-gauche, .nav-droite {
+            position: absolute; top: 50%; transform: translateY(-50%); /* Centre les flèches verticalement */
+            color: white; font-size: 60px; font-weight: bold; /* Style des flèches */
+            padding: 20px; cursor: pointer; user-select: none; /* Empêche de sélectionner le texte de la flèche */
+            transition: 0.3s; /* Animation fluide au clic/survol */
+        }
+        .nav-gauche:hover, .nav-droite:hover { color: #1a73e8; } /* Les flèches deviennent bleues au survol */
+        .nav-gauche { left: 10px; } /* Place la flèche gauche au bord gauche */
+        .nav-droite { right: 10px; } /* Place la flèche droite au bord droit */
     </style>
 </head>
 <body>
 
-    <h1>Ma Galerie</h1>
-    <div class="gallery">
-        <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
-        <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
-        <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)">
-        <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)">
-        <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)">
-    </div>
+    <h1>Ma Galerie</h1> <div class="gallery"> <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)"> <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)"> <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)"> <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)"> <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)"> </div>
 
-    <div id="modele" class="modele" onclick="fermerPleinEcran()">
-        <span class="fermer" onclick="fermerPleinEcran()">&times;</span>
-        <img class="modele-contenu" id="imageModele">
-        
-        <div class="nav-gauche" onclick="event.stopPropagation(); photoPrecedente()">&#10094;</div>
+    <div id="modele" class="modele" onclick="fermerPleinEcran()"> <span class="fermer" onclick="fermerPleinEcran()">&times;</span> <img class="modele-contenu" id="imageModele"> <div class="nav-gauche" onclick="event.stopPropagation(); photoPrecedente()">&#10094;</div>
         <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
     </div>
 
     <script>
-        let indexActuel = 0;
-        const photos = document.querySelectorAll('.gallery img');
-        const modele = document.getElementById("modele");
-        const imageModele = document.getElementById("imageModele");
+        let indexActuel = 0; // Variable pour savoir quelle photo est actuellement affichée
+        const photos = document.querySelectorAll('.gallery img'); // Récupère toutes les images de la galerie
+        const modele = document.getElementById("modele"); // Récupère l'élément de la fenêtre modale
+        const imageModele = document.getElementById("imageModele"); // Récupère l'élément de l'image agrandie
+        let xDebut = null; // Variable pour enregistrer le point de départ du doigt sur l'écran (Tactile)
 
-        // Variables pour le tactile (Swipe)
-        let xDebut = null;
-
+        // Fonction pour ouvrir une photo en grand
         function ouvrirPleinEcran(index) {
-            indexActuel = index;
-            modele.style.display = "flex";
-            imageModele.src = photos[indexActuel].src;
+            indexActuel = index; // Enregistre l'index de la photo cliquée
+            modele.style.display = "flex"; // Affiche la fenêtre modale en mode Flex (centré)
+            imageModele.src = photos[indexActuel].src; // Met la source de l'image cliquée dans la grande image
         }
 
+        // Fonction pour fermer la fenêtre
         function fermerPleinEcran() {
-            modele.style.display = "none";
+            modele.style.display = "none"; // Cache la fenêtre modale
         }
 
+        // Fonction pour passer à la photo suivante
         function photoSuivante() {
-            indexActuel = (indexActuel + 1) % photos.length;
-            imageModele.src = photos[indexActuel].src;
+            indexActuel = (indexActuel + 1) % photos.length; // Calcule l'index suivant (revient à 0 à la fin)
+            imageModele.src = photos[indexActuel].src; // Change la source de l'image affichée
         }
 
+        // Fonction pour passer à la photo précédente
         function photoPrecedente() {
-            indexActuel = (indexActuel - 1 + photos.length) % photos.length;
-            imageModele.src = photos[indexActuel].src;
+            indexActuel = (indexActuel - 1 + photos.length) % photos.length; // Calcule l'index précédent
+            imageModele.src = photos[indexActuel].src; // Change la source de l'image affichée
         }
 
-        // --- GESTION DU CLAVIER ---
+        // Gestion du clavier (Flèches et Echap)
         document.addEventListener('keydown', (e) => {
-            if (modele.style.display === "flex") {
-                if (e.key === "ArrowRight") photoSuivante();
-                if (e.key === "ArrowLeft") photoPrecedente();
-                if (e.key === "Escape") fermerPleinEcran();
+            if (modele.style.display === "flex") { // Si la fenêtre est ouverte
+                if (e.key === "ArrowRight") photoSuivante(); // Flèche droite -> Suivante
+                if (e.key === "ArrowLeft") photoPrecedente(); // Flèche gauche -> Précédente
+                if (e.key === "Escape") fermerPleinEcran(); // Touche Echap -> Fermer
             }
         });
 
-        // --- GESTION DU TACTILE (SWIPE) ---
+        // Gestion du Tactile (Début du toucher)
         modele.addEventListener('touchstart', (e) => {
-            xDebut = e.touches[0].clientX;
+            xDebut = e.touches[0].clientX; // Enregistre la position horizontale du doigt
         }, false);
 
+        // Gestion du Tactile (Fin du toucher / Swipe)
         modele.addEventListener('touchend', (e) => {
-            if (!xDebut) return;
+            if (!xDebut) return; // Si pas de point de départ, on ne fait rien
+            let xFin = e.changedTouches[0].clientX; // Enregistre la position où le doigt quitte l'écran
+            let difference = xDebut - xFin; // Calcule la distance parcourue
 
-            let xFin = e.changedTouches[0].clientX;
-            let difference = xDebut - xFin;
-
-            // Si le glissement est assez long (plus de 50 pixels)
-            if (Math.abs(difference) > 50) {
-                if (difference > 0) {
-                    photoSuivante(); // Glissé vers la gauche -> Photo suivante
-                } else {
-                    photoPrecedente(); // Glissé vers la droite -> Photo précédente
-                }
+            if (Math.abs(difference) > 50) { // Si le glissement est supérieur à 50 pixels
+                if (difference > 0) photoSuivante(); // Glissé vers la gauche -> Suivante
+                else photoPrecedente(); // Glissé vers la droite -> Précédente
             }
-            xDebut = null; // Réinitialisation
+            xDebut = null; // Réinitialise le point de départ
         }, false);
-
-
     </script>
 </body>
 </html>
