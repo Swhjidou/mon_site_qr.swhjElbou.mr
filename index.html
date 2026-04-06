@@ -7,6 +7,18 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #f4f7f6; margin: 0; padding: 20px; }
         
+        /* Style du message d'expiration */
+        #message-expiration {
+            display: none;
+            margin-top: 50px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: #d93025;
+            font-size: 1.2rem;
+        }
+
         /* Grille des miniatures */
         .gallery { 
             display: grid; 
@@ -27,23 +39,14 @@
             background-color: rgba(0,0,0,0.9);
             justify-content: center; align-items: center;
         }
-
-        .modele-contenu {
-            max-width: 90%; max-height: 80%;
-            border-radius: 5px; border: 3px solid white;
-        }
-
-        .fermer {
-            position: absolute; top: 20px; right: 35px;
-            color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;
-        }
+        .modele-contenu { max-width: 90%; max-height: 80%; border-radius: 5px; border: 3px solid white; }
+        .fermer { position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
 
         /* Navigation */
         .nav-gauche, .nav-droite {
             position: absolute; top: 50%; transform: translateY(-50%);
             color: white; font-size: 60px; font-weight: bold;
-            padding: 20px; cursor: pointer; user-select: none;
-            transition: 0.3s;
+            padding: 20px; cursor: pointer; user-select: none; transition: 0.3s;
         }
         .nav-gauche:hover, .nav-droite:hover { color: #1a73e8; }
         .nav-gauche { left: 10px; }
@@ -52,41 +55,63 @@
 </head>
 <body>
 
-    <h1>Correction de composition 2</h1>
-    <div class="gallery">
-        <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
-        <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
-        <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)">
-        <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)">
-        <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)">
+    <div id="contenu-page">
+        <h1>Correction de composition 2</h1>
+        <div class="gallery">
+            <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
+            <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
+            <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)">
+            <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)">
+            <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)">
+        </div>
+    </div>
+
+    <div id="message-expiration">
+        <h2>Accès Expiré</h2>
+        <p>Désolé, cette correction n'est plus disponible. Le délai de consultation est dépassé.</p>
     </div>
 
     <div id="modele" class="modele" onclick="fermerPleinEcran()">
         <span class="fermer" onclick="fermerPleinEcran()">&times;</span>
-        <img class="modele-contenu" id="imageModele">
-        
+        <img id="imageModele" class="modele-contenu">
         <div class="nav-gauche" onclick="event.stopPropagation(); photoPrecedente()">&#10094;</div>
         <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
     </div>
 
     <script>
+        // --- CONFIGURATION DE L'EXPIRATION ---
+        // Format : ANNÉE, MOIS (0-11), JOUR, HEURE, MINUTE
+        // Attention : Janvier = 0, Février = 1... Avril = 3.
+        const dateExpiration = new Date(2026, 3, 4, 23, 50); // Expire le 10 Avril 2026 à 23h59
+
+        function verifierExpiration() {
+            const maintenant = new Date();
+            if (maintenant > dateExpiration) {
+                document.getElementById('contenu-page').style.display = 'none';
+                document.getElementById('message-expiration').style.display = 'block';
+                return true;
+            }
+            return false;
+        }
+
+        // Vérifier dès le chargement
+        const estExpire = verifierExpiration();
+
+        // --- RESTE DU CODE DE LA GALERIE ---
         let indexActuel = 0;
         const photos = document.querySelectorAll('.gallery img');
         const modele = document.getElementById("modele");
         const imageModele = document.getElementById("imageModele");
-
-        // Variables pour le tactile (Swipe)
         let xDebut = null;
 
         function ouvrirPleinEcran(index) {
+            if (verifierExpiration()) return;
             indexActuel = index;
             modele.style.display = "flex";
             imageModele.src = photos[indexActuel].src;
         }
 
-        function fermerPleinEcran() {
-            modele.style.display = "none";
-        }
+        function fermerPleinEcran() { modele.style.display = "none"; }
 
         function photoSuivante() {
             indexActuel = (indexActuel + 1) % photos.length;
@@ -98,7 +123,6 @@
             imageModele.src = photos[indexActuel].src;
         }
 
-        // --- GESTION DU CLAVIER ---
         document.addEventListener('keydown', (e) => {
             if (modele.style.display === "flex") {
                 if (e.key === "ArrowRight") photoSuivante();
@@ -107,28 +131,16 @@
             }
         });
 
-        // --- GESTION DU TACTILE (SWIPE) ---
-        modele.addEventListener('touchstart', (e) => {
-            xDebut = e.touches[0].clientX;
-        }, false);
-
+        modele.addEventListener('touchstart', (e) => { xDebut = e.touches[0].clientX; }, false);
         modele.addEventListener('touchend', (e) => {
             if (!xDebut) return;
-
             let xFin = e.changedTouches[0].clientX;
-            let difference = xDebut - xFin;
-
-            // Si le glissement est assez long (plus de 50 pixels)
-            if (Math.abs(difference) > 50) {
-                if (difference > 0) {
-                    photoSuivante(); // Glissé vers la gauche -> Photo suivante
-                } else {
-                    photoPrecedente(); // Glissé vers la droite -> Photo précédente
-                }
+            let diff = xDebut - xFin;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) photoSuivante(); else photoPrecedente();
             }
-            xDebut = null; // Réinitialisation
+            xDebut = null;
         }, false);
-
     </script>
 </body>
 </html>
