@@ -5,85 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ma Galerie Interactive</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        h1 { color: #1a73e8; }
+        body { font-family: sans-serif; text-align: center; background-color: #f0f2f5; margin: 0; padding: 20px; }
         
-        /* Style de la galerie (petites vignettes) */
-        .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; }
+        /* Grille de miniatures */
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 15px; 
+            max-width: 800px; 
+            margin: 20px auto; 
+        }
         .gallery img { 
-            width: 150px; height: 150px; object-fit: cover; /* Images carrées et petites */
-            border-radius: 10px; cursor: pointer; transition: 0.3s; border: 3px solid white;
+            width: 100%; height: 120px; object-fit: cover; 
+            border-radius: 8px; cursor: pointer; border: 3px solid white;
+            transition: 0.2s;
         }
-        .gallery img:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .gallery img:hover { transform: scale(1.05); }
 
-        /* Style du Plein Écran (Modal) */
-        #modal { 
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
-            width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); 
-            justify-content: center; align-items: center; 
+        /* Le Modal (Plein écran) */
+        #photo-modal { 
+            display: none; /* Caché par défaut */
+            position: fixed; z-index: 9999; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.9); 
+            flex-direction: column; justify-content: center; align-items: center; 
         }
-        #modal img { max-width: 90%; max-height: 80%; border-radius: 5px; }
-        
-        /* Boutons de navigation */
+
+        #modal-img { 
+            max-width: 95%; max-height: 80vh; 
+            border: 2px solid white; border-radius: 5px; 
+        }
+
+        /* Boutons */
         .nav-btn { 
-            position: absolute; top: 50%; color: white; font-size: 50px; 
-            font-weight: bold; cursor: pointer; user-select: none; padding: 20px;
-            transform: translateY(-50%); text-decoration: none;
+            position: absolute; top: 50%; color: white; font-size: 40px; 
+            cursor: pointer; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 50%;
         }
-        .nav-btn:hover { color: #1a73e8; }
         #prev { left: 10px; }
         #next { right: 10px; }
-        #close { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; }
+        #close { position: absolute; top: 20px; right: 20px; color: white; font-size: 40px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <h1>Ma Galerie</h1>
-    <p>Cliquez sur une photo pour l'agrandir</p>
-
     <div class="gallery">
-        <img src="static/photo1.Jpeg" onclick="openModal(0)">
-        <img src="static/photo2.jpeg" onclick="openModal(1)">
-        <img src="static/photo3.jpeg" onclick="openModal(2)">
-        <img src="static/photo4.jpeg" onclick="openModal(3)">
-        <img src="static/photo5.jpeg" onclick="openModal(4)">
+        <img src="static/photo1.Jpeg" onclick="openFull(0)">
+        <img src="static/photo2.jpeg" onclick="openFull(1)">
+        <img src="static/photo3.jpeg" onclick="openFull(2)">
+        <img src="static/photo4.jpeg" onclick="openFull(3)">
+        <img src="static/photo5.jpeg" onclick="openFull(4)">
     </div>
 
-    <div id="modal">
-        <span id="close" onclick="closeModal()">&times;</span>
-        <span id="prev" class="nav-btn" onclick="changeSlide(-1)">&#10094;</span>
+    <div id="photo-modal">
+        <span id="close" onclick="closeFull()">&times;</span>
+        <div id="prev" class="nav-btn" onclick="changeImg(-1)">&#10094;</div>
         <img id="modal-img" src="">
-        <span id="next" class="nav-btn" onclick="changeSlide(1)">&#10095;</span>
+        <div id="next" class="nav-btn" onclick="changeImg(1)">&#10095;</div>
     </div>
 
     <script>
-        let images = document.querySelectorAll('.gallery img');
+        // On récupère toutes les images de la galerie dans une liste
+        const allImages = document.querySelectorAll('.gallery img');
         let currentIndex = 0;
+        const modal = document.getElementById("photo-modal");
+        const modalImg = document.getElementById("modal-img");
 
-        function openModal(index) {
+        function openFull(index) {
             currentIndex = index;
-            document.getElementById("modal").style.display = "flex";
-            updateModal();
+            modal.style.display = "flex"; // On affiche le modal
+            modalImg.src = allImages[currentIndex].src; // On charge l'image
         }
 
-        function closeModal() {
-            document.getElementById("modal").style.display = "none";
+        function closeFull() {
+            modal.style.display = "none";
         }
 
-        function changeSlide(n) {
-            currentIndex += n;
-            if (currentIndex >= images.length) currentIndex = 0;
-            if (currentIndex < 0) currentIndex = images.length - 1;
-            updateModal();
+        function changeImg(step) {
+            currentIndex += step;
+            // Boucle infinie
+            if (currentIndex >= allImages.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = allImages.length - 1;
+            modalImg.src = allImages[currentIndex].src;
         }
 
-        function updateModal() {
-            document.getElementById("modal-img").src = images[currentIndex].src;
-        }
-
-        // Fermer si on clique à côté de l'image
-        window.onclick = function(event) {
-            if (event.target == document.getElementById("modal")) closeModal();
+        // Fermer si on clique sur le fond noir
+        modal.onclick = function(e) {
+            if (e.target === modal) closeFull();
         }
     </script>
 </body>
