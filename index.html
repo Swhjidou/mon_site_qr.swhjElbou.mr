@@ -75,6 +75,68 @@
         const modele = document.getElementById("modele");
         const imageModele = document.getElementById("imageModele");
 
+        // Variables pour le tactile (Swipe)
+        let xDebut = null;
+
+        function ouvrirPleinEcran(index) {
+            indexActuel = index;
+            modele.style.display = "flex";
+            imageModele.src = photos[indexActuel].src;
+        }
+
+        function fermerPleinEcran() {
+            modele.style.display = "none";
+        }
+
+        function photoSuivante() {
+            indexActuel = (indexActuel + 1) % photos.length;
+            imageModele.src = photos[indexActuel].src;
+        }
+
+        function photoPrecedente() {
+            indexActuel = (indexActuel - 1 + photos.length) % photos.length;
+            imageModele.src = photos[indexActuel].src;
+        }
+
+        // --- GESTION DU CLAVIER ---
+        document.addEventListener('keydown', (e) => {
+            if (modele.style.display === "flex") {
+                if (e.key === "ArrowRight") photoSuivante();
+                if (e.key === "ArrowLeft") photoPrecedente();
+                if (e.key === "Escape") fermerPleinEcran();
+            }
+        });
+
+        // --- GESTION DU TACTILE (SWIPE) ---
+        modele.addEventListener('touchstart', (e) => {
+            xDebut = e.touches[0].clientX;
+        }, false);
+
+        modele.addEventListener('touchend', (e) => {
+            if (!xDebut) return;
+
+            let xFin = e.changedTouches[0].clientX;
+            let difference = xDebut - xFin;
+
+            // Si le glissement est assez long (plus de 50 pixels)
+            if (Math.abs(difference) > 50) {
+                if (difference > 0) {
+                    photoSuivante(); // Glissé vers la gauche -> Photo suivante
+                } else {
+                    photoPrecedente(); // Glissé vers la droite -> Photo précédente
+                }
+            }
+            xDebut = null; // Réinitialisation
+        }, false);
+
+    </script>
+
+    <!-- <script>
+        let indexActuel = 0;
+        const photos = document.querySelectorAll('.gallery img');
+        const modele = document.getElementById("modele");
+        const imageModele = document.getElementById("imageModele");
+
         function ouvrirPleinEcran(index) {
             indexActuel = index;
             modele.style.display = "flex";
@@ -103,6 +165,6 @@
             if (e.key === "ArrowRight") photoSuivante();
             if (e.key === "ArrowLeft") photoPrecedente();
         });
-    </script>
+    </script> -->
 </body>
 </html>
