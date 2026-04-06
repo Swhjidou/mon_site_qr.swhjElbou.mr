@@ -130,41 +130,5 @@
         }, false);
 
     </script>
-
-    <!-- <script>
-        let indexActuel = 0;
-        const photos = document.querySelectorAll('.gallery img');
-        const modele = document.getElementById("modele");
-        const imageModele = document.getElementById("imageModele");
-
-        function ouvrirPleinEcran(index) {
-            indexActuel = index;
-            modele.style.display = "flex";
-            imageModele.src = photos[indexActuel].src;
-        }
-
-        function fermerPleinEcran() {
-            modele.style.display = "none";
-        }
-
-        function photoSuivante() {
-            indexActuel++;
-            if (indexActuel >= photos.length) indexActuel = 0;
-            imageModele.src = photos[indexActuel].src;
-        }
-
-        function photoPrecedente() {
-            indexActuel--;
-            if (indexActuel < 0) indexActuel = photos.length - 1;
-            imageModele.src = photos[indexActuel].src;
-        }
-
-        // Permet aussi de fermer avec la touche Échap
-        document.addEventListener('keydown', (e) => {
-            if (e.key === "Escape") fermerPleinEcran();
-            if (e.key === "ArrowRight") photoSuivante();
-            if (e.key === "ArrowLeft") photoPrecedente();
-        });
-    </script> -->
 </body>
 </html>
