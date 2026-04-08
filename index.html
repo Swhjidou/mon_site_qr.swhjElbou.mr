@@ -3,40 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <title>Correction de composition 2</title> -->
-    <div id="contenu-page">
-        <h1>Espace Correction</h1>
-
-        <div class="tab-container">
-            <button class="tab-button active" onclick="ouvrirOnglet(event, 'page1')">Bouton 1</button>
-            <button class="tab-button" onclick="ouvrirOnglet(event, 'page2')">Bouton 2</button>
-            <button class="tab-button" onclick="ouvrirOnglet(event, 'page3')">Bouton 3</button>
-        </div>
-
-        <div id="page1" class="tab-content" style="display: block;">
-            <h2>bjr buton1</h2>
-            <div class="gallery">
-                <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
-                <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
-            </div>
-        </div>
-
-        <div id="page2" class="tab-content">
-            <h2>Contenu du Bouton 2</h2>
-            <p>Ici, vous pouvez mettre d'autres exercices ou informations.</p>
-        </div>
-
-        <div id="page3" class="tab-content">
-            <h2>Contenu du Bouton 3</h2>
-            <p>Texte ou photos pour la troisième section.</p>
-        </div>
-    </div>
-
-    <!-- CSS -->
+    <title>Correction de composition 2</title>
+    
     <style>
         body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #f4f7f6; margin: 0; padding: 20px; }
         
-        /* Style du message d'expiration */
         #message-expiration {
             display: none;
             margin-top: 50px;
@@ -48,7 +19,6 @@
             font-size: 1.2rem;
         }
 
-        /* Grille des miniatures */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
@@ -61,7 +31,6 @@
         }
         .gallery img:hover { transform: scale(1.05); }
 
-        /* Le Modale Plein Écran */
         .modele {
             display: none; position: fixed; z-index: 1000;
             left: 0; top: 0; width: 100%; height: 100%;
@@ -71,7 +40,6 @@
         .modele-contenu { max-width: 90%; max-height: 80%; border-radius: 5px; border: 3px solid white; }
         .fermer { position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
 
-        /* Navigation */
         .nav-gauche, .nav-droite {
             position: absolute; top: 50%; transform: translateY(-50%);
             color: white; font-size: 60px; font-weight: bold;
@@ -81,7 +49,6 @@
         .nav-gauche { left: 10px; }
         .nav-droite { right: 10px; }
 
-        /* Style des boutons */
         .tab-container {
             margin-bottom: 20px;
             display: flex;
@@ -101,9 +68,7 @@
             color: #555;
         }
 
-        .tab-button:hover {
-            background-color: #d0d0d0;
-        }
+        .tab-button:hover { background-color: #d0d0d0; }
 
         .tab-button.active {
             background-color: #1a73e8;
@@ -111,9 +76,8 @@
             box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
         }
 
-        /* Cacher le contenu par défaut */
         .tab-content {
-            display: none;
+            display: none; /* Tous les contenus sont cachés au départ */
             animation: fadeIn 0.5s;
         }
 
@@ -127,19 +91,39 @@
 <body>
 
     <div id="contenu-page">
-        <h1>Correction de composition 2</h1>
-        <div class="gallery">
-            <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
-            <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
-            <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)">
-            <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)">
-            <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)">
+        <h1>Espace Correction</h1>
+
+        <div class="tab-container">
+            <button class="tab-button" onclick="ouvrirOnglet(event, 'page1')">Bouton 1</button>
+            <button class="tab-button" onclick="ouvrirOnglet(event, 'page2')">Bouton 2</button>
+            <button class="tab-button" onclick="ouvrirOnglet(event, 'page3')">Bouton 3</button>
+        </div>
+
+        <div id="page1" class="tab-content">
+            <h2>bjr bouton 1</h2>
+            <div class="gallery">
+                <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
+                <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
+                <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)">
+                <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)">
+                <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)">
+            </div>
+        </div>
+
+        <div id="page2" class="tab-content">
+            <h2>Contenu du Bouton 2</h2>
+            <p>Ici, vous pouvez mettre d'autres exercices ou informations.</p>
+        </div>
+
+        <div id="page3" class="tab-content">
+            <h2>Contenu du Bouton 3</h2>
+            <p>Texte ou photos pour la troisième section.</p>
         </div>
     </div>
 
     <div id="message-expiration">
         <h2>Accès Expiré</h2>
-        <p>Désolé, cette correction n'est plus disponible. Le délai de consultation est dépassé. 😰😰😭😢😈👿</p>
+        <p>Désolé, cette correction n'est plus disponible. Le délai de consultation est dépassé. 😰</p>
     </div>
 
     <div id="modele" class="modele" onclick="fermerPleinEcran()">
@@ -149,13 +133,9 @@
         <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
     </div>
 
-
-    <!-- JS -->
     <script>
-        // --- CONFIGURATION DE L'EXPIRATION ---
-        // Format : ANNÉE, MOIS (0-11), JOUR, HEURE, MINUTE
-        // Attention : Janvier = 0, Février = 1... Avril = 3.
-        const dateExpiration = new Date(2026, 3, 8, 23, 59); // Expire le 8 Avril 2026 à 23h59
+        // Date d'expiration (Aujourd'hui 8 Avril 2026 pour le test)
+        const dateExpiration = new Date(2026, 3, 8, 23, 59);
 
         function verifierExpiration() {
             const maintenant = new Date();
@@ -167,10 +147,8 @@
             return false;
         }
 
-        // Vérifier dès le chargement
-        const estExpire = verifierExpiration();
+        verifierExpiration();
 
-        // --- RESTE DU CODE DE LA GALERIE ---
         let indexActuel = 0;
         const photos = document.querySelectorAll('.gallery img');
         const modele = document.getElementById("modele");
@@ -196,42 +174,18 @@
             imageModele.src = photos[indexActuel].src;
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (modele.style.display === "flex") {
-                if (e.key === "ArrowRight") photoSuivante();
-                if (e.key === "ArrowLeft") photoPrecedente();
-                if (e.key === "Escape") fermerPleinEcran();
-            }
-        });
-
-        modele.addEventListener('touchstart', (e) => { xDebut = e.touches[0].clientX; }, false);
-        modele.addEventListener('touchend', (e) => {
-            if (!xDebut) return;
-            let xFin = e.changedTouches[0].clientX;
-            let diff = xDebut - xFin;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) photoSuivante(); else photoPrecedente();
-            }
-            xDebut = null;
-        }, false);
-
         function ouvrirOnglet(evt, nomOnglet) {
-        // 1. Cacher tous les contenus d'onglets
-        let tabContents = document.getElementsByClassName("tab-content");
-        for (let i = 0; i < tabContents.length; i++) {
-            tabContents[i].style.display = "none";
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].style.display = "none";
+            }
+            let tabButtons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+            }
+            document.getElementById(nomOnglet).style.display = "block";
+            evt.currentTarget.className += " active";
         }
-
-        // 2. Retirer la classe "active" de tous les boutons
-        let tabButtons = document.getElementsByClassName("tab-button");
-        for (let i = 0; i < tabButtons.length; i++) {
-            tabButtons[i].className = tabButtons[i].className.replace(" active", "");
-        }
-
-        // 3. Afficher l'onglet actuel et ajouter la classe "active" au bouton cliqué
-        document.getElementById(nomOnglet).style.display = "block";
-        evt.currentTarget.className += " active";
-    }
     </script>
 </body>
 </html>
