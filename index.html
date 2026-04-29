@@ -393,6 +393,31 @@
         document.getElementById(nomOnglet).style.display = "block";
         evt.currentTarget.className += " active";
     }
+
+
+    function ouvrirOnglet(evt, nomOnglet) {
+    // 1. Cacher tous les contenus (y compris l'accueil)
+    let tabContents = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].style.display = "none";
+    }
+
+    // 2. Retirer la classe "active" de tous les boutons
+    let tabButtons = document.getElementsByClassName("tab-button");
+    for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active");
+    }
+
+    // 3. Afficher l'onglet demandé
+    document.getElementById(nomOnglet).style.display = "block";
+    
+    // 4. Ajouter la classe active au bouton cliqué
+    evt.currentTarget.classList.add("active");
+    
+    // 5. Cacher l'écran d'accueil explicitement (si ce n'est pas déjà fait par la boucle)
+    const accueil = document.getElementById('accueil-instructions');
+    if(accueil) accueil.style.display = "none";
+    }
     </script>
 </body>
 </html>
