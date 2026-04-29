@@ -25,8 +25,8 @@
                     <span class="class-label">Classe 6C&D</span>
                 </button>
                 <button class="tab-button" onclick="ouvrirOnglet(event, 'page3')">
-                    <span class="class-number">7C&D</span>
-                    <span class="class-label">Classe 7</span>
+                    <span class="class-number">7</span>
+                    <span class="class-label">Classe 7C&D</span>
                 </button>
             </div>
         </div>
@@ -217,17 +217,47 @@
 
 <body>
 
-    <!-- <div id="contenu-page">
-        <h1>Correction de composition 2</h1>
-        <div class="gallery">
-            <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
-            <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
-            <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)">
-            <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)">
-            <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)">
-        </div>
-    </div> -->
+        <div id="contenu-page">
+        <h1>Espace Correction</h1>
 
+        <div class="ribbon-container">
+            <div class="ribbon">
+                <button class="tab-button active" onclick="ouvrirOnglet(event, 'classe5')">
+                    <span class="class-number">5</span>
+                    <span class="class-label">Classe 5</span>
+                </button>
+                <button class="tab-button" onclick="ouvrirOnglet(event, 'classe6')">
+                    <span class="class-number">6</span>
+                    <span class="class-label">Classe 6</span>
+                </button>
+                <button class="tab-button" onclick="ouvrirOnglet(event, 'classe7')">
+                    <span class="class-number">7</span>
+                    <span class="class-label">Classe 7</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="classe5" class="tab-content" style="display: block;">
+            <h3>Correction - Classe 5</h3>
+            <div class="gallery">
+                <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0, 'classe5')">
+                <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1, 'classe5')">
+            </div>
+        </div>
+
+        <div id="classe6" class="tab-content">
+            <h3>Correction - Classe 6</h3>
+            <div class="gallery">
+                <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(0, 'classe6')">
+            </div>
+        </div>
+
+        <div id="classe7" class="tab-content">
+            <h3>Correction - Classe 7</h3>
+            <p>Aucune image disponible pour le moment.</p>
+        </div>
+    </div>
+    
     <div id="message-expiration">
         <h2>Accès Expiré</h2>
         <p>Désolé, cette correction n'est plus disponible. Le délai de consultation est dépassé. 😰😰😭😢😈👿</p>
