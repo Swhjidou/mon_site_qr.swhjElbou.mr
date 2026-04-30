@@ -3,61 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <title>Correction de composition 2</title> -->
-    <!-- <div id="contenu-page">
-        <h1>Espace Correction</h1> -->
+    <title>Espace Correction</title>
 
-        <!-- J'ai remplacer class tab-container avec ribbon-container -->
-        <!-- <div class="tab-container">
-            <button class="tab-button active" onclick="ouvrirOnglet(event, 'page1')">Bouton 1</button>
-            <button class="tab-button" onclick="ouvrirOnglet(event, 'page2')">Bouton 2</button>
-            <button class="tab-button" onclick="ouvrirOnglet(event, 'page3')">Bouton 3</button>
-        </div> -->
-
-        <!-- <div class="ribbon-container">
-            <div class="ribbon">
-                <button class="tab-button active" onclick="ouvrirOnglet(event, 'page1')">
-                    <span class="class-number">5</span>
-                    <span class="class-label">Classe 5C&D</span>
-                </button>
-                <button class="tab-button" onclick="ouvrirOnglet(event, 'page2')">
-                    <span class="class-number">6</span>
-                    <span class="class-label">Classe 6C&D</span>
-                </button>
-                <button class="tab-button" onclick="ouvrirOnglet(event, 'page3')">
-                    <span class="class-number">7</span>
-                    <span class="class-label">Classe 7C&D</span>
-                </button>
-            </div>
-        </div> -->
-
-        <!-- <div id="page1" class="tab-content" style="display: block;">
-            <h2>bjr buton1</h2>
-            <div class="gallery">
-                <img src="static/photo1.jpeg" onclick="ouvrirPleinEcran(0)">
-                <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1)">
-                <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(2)">
-                <img src="static/photo4.jpeg" onclick="ouvrirPleinEcran(3)">
-                <img src="static/photo5.jpeg" onclick="ouvrirPleinEcran(4)">
-            </div>
-        </div> -->
-
-        <!-- <div id="page2" class="tab-content">
-            <h2>Contenu du Bouton 2</h2>
-            <p>Ici, vous pouvez mettre d'autres exercices ou informations.</p>
-        </div>
-
-        <div id="page3" class="tab-content">
-            <h2>Contenu du Bouton 3</h2>
-            <p>Texte ou photos pour la troisième section.</p>
-        </div>
-    </div> -->
-
-    <!-- CSS -->
     <style>
         body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #f4f7f6; margin: 0; padding: 20px; }
         
-        /* Style du message d'expiration */
         #message-expiration {
             display: none;
             margin-top: 50px;
@@ -69,7 +19,6 @@
             font-size: 1.2rem;
         }
 
-        /* Grille des miniatures */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
@@ -82,7 +31,6 @@
         }
         .gallery img:hover { transform: scale(1.05); }
 
-        /* Le Modale Plein Écran */
         .modele {
             display: none; position: fixed; z-index: 1000;
             left: 0; top: 0; width: 100%; height: 100%;
@@ -92,7 +40,6 @@
         .modele-contenu { max-width: 90%; max-height: 80%; border-radius: 5px; border: 3px solid white; }
         .fermer { position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
 
-        /* Navigation */
         .nav-gauche, .nav-droite {
             position: absolute; top: 50%; transform: translateY(-50%);
             color: white; font-size: 60px; font-weight: bold;
@@ -102,156 +49,64 @@
         .nav-gauche { left: 10px; }
         .nav-droite { right: 10px; }
 
-        /* Style des boutons */
-        .tab-container {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .tab-button {
-            padding: 12px 25px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            background-color: #e0e0e0;
-            border-radius: 25px;
-            transition: 0.3s;
-            font-weight: bold;
-            color: #555;
-        }
-
-        .tab-button:hover {
-            background-color: #d0d0d0;
-        }
-
-        .tab-button.active {
-            background-color: #1a73e8;
-            color: white;
-            box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
-        }
-
-        /* Cacher le contenu par défaut */
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Container du ruban */
         .ribbon-container {
             margin: 20px auto 40px auto;
-            max-width: 500px;
+            max-width: 600px;
             background: white;
             padding: 8px;
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
-        .ribbon {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .ribbon { display: flex; justify-content: space-between; align-items: center; }
 
-        /* Style des nouveaux boutons de classe */
         .tab-button {
-            /* flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-radius: 40px;
-            color: #777; */
-
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 40px;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #666;
+            flex: 1; border: none; background: transparent;
+            padding: 10px; cursor: pointer; border-radius: 40px;
+            transition: all 0.3s ease; display: flex;
+            flex-direction: column; align-items: center; color: #666;
         }
 
-        /* Le chiffre de la classe (bulle) */
         .class-number {
-            /* background: #f0f0f0;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-weight: bold;
-            margin-bottom: 5px;
-            transition: 0.3s; */
-
-
-            background: #f0f2f5;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-bottom: 4px;
+            background: #f0f2f5; width: 30px; height: 30px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: bold; margin-bottom: 4px;
         }
 
-        .class-label {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .class-label { font-size: 0.8rem; text-transform: uppercase; font-weight: bold; }
 
-        /* État Actif (Quand on clique) */
         .tab-button.active {
-            background-color: #1a73e8;
-            color: white;
+            background-color: #1a73e8; color: white;
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(26, 115, 232, 0.4);
         }
 
-        .tab-button.active .class-number {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
+        .tab-button.active .class-number { background: rgba(255, 255, 255, 0.2); color: white; }
 
-        /* Effet au survol */
-        .tab-button:hover:not(.active) {
-            background-color: #f8f9fa;
-            color: #1a73e8;
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .welcome-card {
+            max-width: 500px; margin: 40px auto; padding: 30px;
+            background: white; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .tab-content h3 {
-        color: #1a73e8;
-        margin-bottom: 20px;
-        }
+        .instructions-list { text-align: left; display: inline-block; margin-top: 15px; }
     </style>
 </head>
 
 <body>
 
     <div id="contenu-page">
-    <h1>Espace Correction</h1>
+        <h1>Espace Correction</h1>
+        
         <div class="ribbon-container">
             <div class="ribbon">
                 <button class="tab-button active" onclick="ouvrirOnglet(event, 'accueil')">
+                    <span class="class-number">🏠</span>
                     <span class="class-label">Accueil</span>
                 </button>
-                <button class="tab-button active" onclick="ouvrirOnglet(event, 'classe5')">
+                <button class="tab-button" onclick="ouvrirOnglet(event, 'classe5')">
                     <span class="class-number">5</span>
                     <span class="class-label">Classe 5</span>
                 </button>
@@ -266,22 +121,18 @@
             </div>
         </div>
 
-        
-
         <div id="accueil" class="tab-content" style="display: block;">
-            <div id="accueil-instructions" class="tab-content" style="display: block;">
-                <div class="welcome-card">
-                    <div class="icon-info">ℹ️</div>
-                    <h3>Bienvenue dans votre espace de correction</h3>
-                    <p>Veuillez sélectionner votre <strong>niveau scolaire</strong> ci-dessus pour afficher les exercices et les solutions correspondantes.</p>
-                    <ul class="instructions-list">
-                        <li>Cliquez sur une classe pour voir les images.</li>
-                        <li>Cliquez sur une image pour l'agrandir.</li>
-                        <li>Utilisez les flèches pour naviguer entre les photos.</li>
-                    </ul>
-                </div>
+            <div class="welcome-card">
+                <div style="font-size: 40px;">ℹ️</div>
+                <h3>Bienvenue</h3>
+                <p>Sélectionnez votre <strong>niveau scolaire</strong> pour voir les corrections.</p>
+                <ul class="instructions-list">
+                    <li>Cliquez sur une classe ci-dessus.</li>
+                    <li>Cliquez sur une image pour l'agrandir.</li>
+                </ul>
             </div>
         </div>
+
         <div id="classe5" class="tab-content">
             <h3>Correction - Classe 5</h3>
             <div class="gallery">
@@ -292,21 +143,18 @@
 
         <div id="classe6" class="tab-content">
             <h3>Correction - Classe 6</h3>
-            <p>Aucun contenu disponible pour le moment.</p>
-            <!-- <div class="gallery">
-                <img src="static/photo3.jpeg" onclick="ouvrirPleinEcran(0, 'classe6')">
-            </div> -->
+            <p>Contenu bientôt disponible.</p>
         </div>
 
         <div id="classe7" class="tab-content">
             <h3>Correction - Classe 7</h3>
-            <p>Aucun contenu disponible pour le moment.</p>
+            <p>Contenu bientôt disponible.</p>
         </div>
     </div>
     
     <div id="message-expiration">
         <h2>Accès Expiré</h2>
-        <p>Désolé, cette correction n'est plus disponible. Le délai de consultation est dépassé. 😰😰😭😢😈👿</p>
+        <p>Le délai de consultation est dépassé. 😰</p>
     </div>
 
     <div id="modele" class="modele" onclick="fermerPleinEcran()">
@@ -316,51 +164,57 @@
         <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
     </div>
 
-
-    <!-- JS -->
     <script>
-        // --- CONFIGURATION DE L'EXPIRATION ---
-        // Format : ANNÉE, MOIS (0-11), JOUR, HEURE, MINUTE
-        // Attention : Janvier = 0, Février = 1... Avril = 3.
-        const dateExpiration = new Date(2026, 5, 1, 0, 0); // Expire le 8 Avril 2026 à 23h59
+        const dateExpiration = new Date(2026, 3, 8, 23, 59); // 8 Avril 2026
 
         function verifierExpiration() {
-            const maintenant = new Date();
-            if (maintenant > dateExpiration) {
+            if (new Date() > dateExpiration) {
                 document.getElementById('contenu-page').style.display = 'none';
                 document.getElementById('message-expiration').style.display = 'block';
                 return true;
             }
             return false;
         }
+        verifierExpiration();
 
-        // Vérifier dès le chargement
-        const estExpire = verifierExpiration();
-
-        // --- RESTE DU CODE DE LA GALERIE ---
         let indexActuel = 0;
-        const photos = document.querySelectorAll('.gallery img');
+        let photosActuelles = [];
         const modele = document.getElementById("modele");
         const imageModele = document.getElementById("imageModele");
-        let xDebut = null;
 
-        function ouvrirPleinEcran(index) {
+        function ouvrirOnglet(evt, nomOnglet) {
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].style.display = "none";
+            }
+            let tabButtons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            document.getElementById(nomOnglet).style.display = "block";
+            evt.currentTarget.classList.add("active");
+        }
+
+        function ouvrirPleinEcran(index, idOnglet) {
             if (verifierExpiration()) return;
+            photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
             indexActuel = index;
             modele.style.display = "flex";
-            imageModele.src = photos[indexActuel].src;
+            imageModele.src = photosActuelles[indexActuel].src;
         }
 
         function fermerPleinEcran() { modele.style.display = "none"; }
 
         function photoSuivante() {
-            indexActuel = (indexActuel + 1) % photos.length;
-            imageModele.src = photos[indexActuel].src;
+            if (photosActuelles.length === 0) return;
+            indexActuel = (indexActuel + 1) % photosActuelles.length;
+            imageModele.src = photosActuelles[indexActuel].src;
         }
 
         function photoPrecedente() {
-            indexActuel = (indexActuel - 1 + photos.length) % photos.length;
-            imageModele.src = photos[indexActuel].src;
+            if (photosActuelles.length === 0) return;
+            indexActuel = (indexActuel - 1 + photosActuelles.length) % photosActuelles.length;
+            imageModele.src = photosActuelles[indexActuel].src;
         }
 
         document.addEventListener('keydown', (e) => {
@@ -370,60 +224,6 @@
                 if (e.key === "Escape") fermerPleinEcran();
             }
         });
-
-        modele.addEventListener('touchstart', (e) => { xDebut = e.touches[0].clientX; }, false);
-        modele.addEventListener('touchend', (e) => {
-            if (!xDebut) return;
-            let xFin = e.changedTouches[0].clientX;
-            let diff = xDebut - xFin;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) photoSuivante(); else photoPrecedente();
-            }
-            xDebut = null;
-        }, false);
-
-        function ouvrirOnglet(evt, nomOnglet) {
-        // 1. Cacher tous les contenus d'onglets
-        let tabContents = document.getElementsByClassName("tab-content");
-        for (let i = 0; i < tabContents.length; i++) {
-            tabContents[i].style.display = "none";
-        }
-
-        // 2. Retirer la classe "active" de tous les boutons
-        let tabButtons = document.getElementsByClassName("tab-button");
-        for (let i = 0; i < tabButtons.length; i++) {
-            tabButtons[i].className = tabButtons[i].className.replace(" active", "");
-        }
-
-        // 3. Afficher l'onglet actuel et ajouter la classe "active" au bouton cliqué
-        document.getElementById(nomOnglet).style.display = "block";
-        evt.currentTarget.className += " active";
-    }
-
-
-    function ouvrirOnglet(evt, nomOnglet) {
-    // 1. Cacher tous les contenus (y compris l'accueil)
-    let tabContents = document.getElementsByClassName("tab-content");
-    for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].style.display = "none";
-    }
-
-    // 2. Retirer la classe "active" de tous les boutons
-    let tabButtons = document.getElementsByClassName("tab-button");
-    for (let i = 0; i < tabButtons.length; i++) {
-        tabButtons[i].classList.remove("active");
-    }
-
-    // 3. Afficher l'onglet demandé
-    document.getElementById(nomOnglet).style.display = "block";
-    
-    // 4. Ajouter la classe active au bouton cliqué
-    evt.currentTarget.classList.add("active");
-    
-    // 5. Cacher l'écran d'accueil explicitement (si ce n'est pas déjà fait par la boucle)
-    const accueil = document.getElementById('accueil-instructions');
-    if(accueil) accueil.style.display = "none";
-    }
     </script>
 </body>
 </html>
