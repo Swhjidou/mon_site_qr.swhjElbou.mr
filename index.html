@@ -93,22 +93,23 @@
         }
         .instructions-list { text-align: left; display: inline-block; margin-top: 15px; }
         
-        /* Filigrane */
+        /* Style du filigrane sur le plein écran */
         .watermark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
             font-size: 3rem;
-            color: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.2);
             font-weight: bold;
-            pointer-events: none;
+            pointer-events: none; /* Pour que le clic passe à travers */
             white-space: nowrap;
             text-transform: uppercase;
             letter-spacing: 10px;
             z-index: 1001;
         }
 
+        /* Empêcher la sélection de texte sur le site */
         body {
             user-select: none;
             -webkit-user-select: none;
@@ -145,7 +146,7 @@
         <div id="accueil" class="tab-content" style="display: block;">
             <div class="welcome-card">
                 <div style="font-size: 40px;">ℹ️</div>
-                <h3 id="welcome-message">Bienvenue</h3>
+                <h3>Bienvenue</h3>
                 <p>Sélectionnez votre <strong>niveau scolaire</strong> pour voir les corrections.</p>
                 <ul class="instructions-list">
                     <li>Cliquez sur une classe ci-dessus.</li>
@@ -185,7 +186,15 @@
         <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
     </div>
 
-    <!-- UN SEUL BLOC VERROUILLAGE (corrigé) -->
+    <div id="verrouillage" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#1a73e8; z-index:9999; display:flex; justify-content:center; align-items:center; color:white; flex-direction:column;">
+        <div style="font-size: 50px; margin-bottom: 20px;">🔐</div>
+        <h2>Accès Sécurisé</h2>
+        <p>Entrez le code d'accès pour voir les corrections :</p>
+        <input type="password" id="codePin" placeholder="Code..." style="padding:12px; border-radius:25px; border:none; text-align:center; font-size:1.2rem; outline:none;">
+        <button onclick="verifierCode()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none; background:white; color:#1a73e8; font-weight:bold; cursor:pointer;">Valider</button>
+        <p id="erreur-code" style="color:#ffcccb; margin-top:10px; display:none;">Code incorrect, réessayez.</p>
+    </div>
+
     <div id="verrouillage" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#1a73e8; z-index:9999; display:flex; justify-content:center; align-items:center; color:white; flex-direction:column; font-family: 'Segoe UI', sans-serif;">
         <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 25px; backdrop-filter: blur(10px); text-align: center; border: 1px solid rgba(255,255,255,0.2); width: 80%; max-width: 400px;">
             <div style="font-size: 50px; margin-bottom: 10px;">🎓</div>
@@ -205,8 +214,11 @@
     </div>
 
     <script>
-        const dateExpiration = new Date(2026, 5, 8, 23, 59);
+        // --- CONFIGURATION ---
+        const dateExpiration = new Date(2026, 5, 8, 23, 59); // 8 Avril 2026 (Attention: Avril = index 3)
+        const compteClasse5 = { nom: "5CG4", pass: "5c20i26", onglet: "classe5" };
 
+        // --- LOGIQUE D'EXPIRATION ---
         function verifierExpiration() {
             if (new Date() > dateExpiration) {
                 document.getElementById('contenu-page').style.display = 'none';
@@ -215,12 +227,45 @@
             }
             return false;
         }
-        verifierExpiration();
 
-        let indexActuel = 0;
-        let photosActuelles = [];
-        let watermarkAjoute = false; // Évite d'ajouter plusieurs filigranes
+        // --- LOGIQUE D'ACCÈS ---
+        function verifierAcces() {
+            const nomSaisi = document.getElementById('userName').value.trim();
+            const passSaisi = document.getElementById('codePin').value;
+            const messageErreur = document.getElementById('erreur-code');
 
+            if (nomSaisi === compteClasse5.nom && passSaisi === compteClasse5.pass) {
+                document.getElementById('verrouillage').style.display = 'none';
+                
+                // Sauvegarde des données de session
+                sessionStorage.setItem('access-granted', 'true');
+                sessionStorage.setItem('user-class', 'classe5');
+                sessionStorage.setItem('user-name', nomSaisi);
+
+                appliquerRestrictions('classe5');
+                actualiserBienvenue(nomSaisi);
+            } else {
+                messageErreur.style.display = 'block';
+                messageErreur.innerText = "Identifiants incorrects pour cette section.";
+            }
+        }
+
+        function appliquerRestrictions(classeAutorisee) {
+            const boutons = document.querySelectorAll('.tab-button');
+            boutons.forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick');
+                if (!onclickAttr.includes('accueil') && !onclickAttr.includes(classeAutorisee)) {
+                    btn.style.display = 'none'; 
+                }
+            });
+        }
+
+        function actualiserBienvenue(nom) {
+            const titreAccueil = document.querySelector('#accueil h3');
+            if(titreAccueil) titreAccueil.innerText = "Bonjour, " + nom + " !";
+        }
+
+        // --- GESTION DES ONGLETS ---
         function ouvrirOnglet(evt, nomOnglet) {
             const classeAutorisee = sessionStorage.getItem('user-class');
 
@@ -230,30 +275,31 @@
             }
 
             let tabContents = document.getElementsByClassName("tab-content");
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].style.display = "none";
-            }
+            for (let i = 0; i < tabContents.length; i++) tabContents[i].style.display = "none";
+
             let tabButtons = document.getElementsByClassName("tab-button");
-            for (let i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove("active");
-            }
+            for (let i = 0; i < tabButtons.length; i++) tabButtons[i].classList.remove("active");
+
             document.getElementById(nomOnglet).style.display = "block";
             evt.currentTarget.classList.add("active");
         }
 
-        // UNE SEULE fonction ouvrirPleinEcran (corrigée)
+        // --- GALERIE PHOTO ---
+        let indexActuel = 0;
+        let photosActuelles = [];
+        const modele = document.getElementById("modele");
+        const imageModele = document.getElementById("imageModele");
+
         function ouvrirPleinEcran(index, idOnglet) {
             if (verifierExpiration()) return;
             photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
             indexActuel = index;
             
-            // Ajout du filigrane UNE SEULE FOIS
-            if (!watermarkAjoute) {
+            if (!document.querySelector('.watermark')) {
                 const divWatermark = document.createElement('div');
                 divWatermark.className = 'watermark';
                 divWatermark.innerText = 'PROF ELBOU';
                 document.getElementById('modele').appendChild(divWatermark);
-                watermarkAjoute = true;
             }
             
             modele.style.display = "flex";
@@ -274,8 +320,10 @@
             imageModele.src = photosActuelles[indexActuel].src;
         }
 
+        // --- ÉVÉNEMENTS ---
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
         document.addEventListener('keydown', (e) => {
-            const modele = document.getElementById('modele');
             if (modele.style.display === "flex") {
                 if (e.key === "ArrowRight") photoSuivante();
                 if (e.key === "ArrowLeft") photoPrecedente();
@@ -283,67 +331,17 @@
             }
         });
 
-        // Protection clic droit
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
-        // Fonction de vérification principale
-        function verifierAcces() {
-            const nomSaisi = document.getElementById('userName').value.trim();
-            const passSaisi = document.getElementById('codePin').value;
-            
-            // CONFIGURATION DES COMPTES
-            const compteClasse5 = { nom: "5CG4", pass: "5c20i26", onglet: "classe5", affichage: "5CG4" };
-            // Ajoutez d'autres classes ici :
-            // const compteClasse6 = { nom: "6CG4", pass: "6c20i26", onglet: "classe6", affichage: "6CG4" };
-            
-            // Vérification pour la Classe 5
-            if (nomSaisi === compteClasse5.nom && passSaisi === compteClasse5.pass) {
-                document.getElementById('verrouillage').style.display = 'none';
-                sessionStorage.setItem('access-granted', 'true');
-                sessionStorage.setItem('user-class', 'classe5');
-                sessionStorage.setItem('user-name', compteClasse5.affichage);
-                
-                appliquerRestrictions('classe5');
-                
-                // Message d'accueil personnalisé
-                const welcomeMsg = document.getElementById('welcome-message');
-                if(welcomeMsg) welcomeMsg.innerText = "Bonjour, " + compteClasse5.affichage + " !";
-            } else {
-                const messageErreur = document.getElementById('erreur-code');
-                messageErreur.style.display = 'block';
-                messageErreur.innerText = "Identifiants incorrects pour cette section.";
-            }
-        }
-
-        function appliquerRestrictions(classeAutorisee) {
-            const boutons = document.querySelectorAll('.tab-button');
-            
-            boutons.forEach(btn => {
-                const onclickAttr = btn.getAttribute('onclick');
-                if (onclickAttr && !onclickAttr.includes('accueil') && !onclickAttr.includes(classeAutorisee)) {
-                    btn.style.display = 'none'; 
-                }
-            });
-        }
-
-        // Vérification au chargement
+        // CHARGEMENT INITIAL
         window.onload = function() {
+            verifierExpiration();
             if (sessionStorage.getItem('access-granted') === 'true') {
                 document.getElementById('verrouillage').style.display = 'none';
                 const classe = sessionStorage.getItem('user-class');
                 const nom = sessionStorage.getItem('user-name');
                 appliquerRestrictions(classe);
-                
-                if(nom) {
-                    const welcomeMsg = document.getElementById('welcome-message');
-                    if(welcomeMsg) welcomeMsg.innerText = "Bonjour, " + nom + " !";
-                }
+                actualiserBienvenue(nom);
             }
         }
-
-        // Références pour les fonctions globales
-        const modele = document.getElementById('modele');
-        const imageModele = document.getElementById('imageModele');
-    </script>
+   </script>
 </body>
 </html>
