@@ -2,7 +2,7 @@ import qrcode
 
 # L'adresse officielle de votre site sur GitHub
 # C'est cette adresse qui est "encodée" dans le carré noir et blanc
-mon_url = "https://swhjidou.github.io/mon_site_qr.swh1.mr/"
+mon_url = "https://swhjidou.github.io/mon_site_qr.swhjElbou.mr/"
 
 # Configuration du design du QR Code
 qr = qrcode.QRCode(
