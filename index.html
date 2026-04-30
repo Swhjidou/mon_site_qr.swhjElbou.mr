@@ -317,34 +317,51 @@
         }
 
 
+        
         function verifierAcces() {
             const nomSaisi = document.getElementById('userName').value.trim();
             const passSaisi = document.getElementById('codePin').value;
             
-            // CONFIGURATION
-            const motDePasseValide = "2026"; // Ton mot de passe
+            // CONFIGURATION DES COMPTES
+            const compteClasse5 = { nom: "5CG4", pass: "5c20i26", onglet: "classe5" };
             
-            // Vérification : Le nom ne doit pas être vide et le pass doit être correct
-            if (nomSaisi.length > 2 && passSaisi === motDePasseValide) {
-                // Cacher l'écran de verrouillage
+            // Vérification pour la Classe 5
+            if (nomSaisi === compteClasse5.nom && passSaisi === compteClasse5.pass) {
+                
                 document.getElementById('verrouillage').style.display = 'none';
-                
-                // Sauvegarder l'accès et le nom pour la session
                 sessionStorage.setItem('access-granted', 'true');
-                sessionStorage.setItem('user-name', nomSaisi);
-                
-                // Optionnel : Changer le titre d'accueil pour l'élève
-                const titreAccueil = document.querySelector('#accueil h3');
-                if(titreAccueil) titreAccueil.innerText = "Bonjour, " + nomSaisi + " !";
+                sessionStorage.setItem('user-class', 'classe5'); // On stocke la classe autorisée
+
+                appliquerRestrictions('classe5');
                 
             } else {
                 const messageErreur = document.getElementById('erreur-code');
                 messageErreur.style.display = 'block';
-                if (nomSaisi.length <= 2) {
-                    messageErreur.innerText = "Veuillez entrer votre nom complet.";
-                } else {
-                    messageErreur.innerText = "Mot de passe incorrect.";
+                messageErreur.innerText = "Identifiants incorrects pour cette section.";
+            }
+        }
+
+        function appliquerRestrictions(classeAutorisee) {
+            // 1. On récupère tous les boutons du ruban
+            const boutons = document.querySelectorAll('.tab-button');
+            
+            boutons.forEach(btn => {
+                // On récupère le nom de l'onglet lié au bouton (ex: 'classe6')
+                // On extrait l'argument de la fonction onclick="ouvrirOnglet(event, 'classeX')"
+                const onclickAttr = btn.getAttribute('onclick');
+                
+                // Si le bouton n'est ni l'accueil, ni la classe autorisée, on le supprime
+                if (!onclickAttr.includes('accueil') && !onclickAttr.includes(classeAutorisee)) {
+                    btn.style.display = 'none'; 
                 }
+            });
+        }
+
+        // Vérification au chargement
+        window.onload = function() {
+            if (sessionStorage.getItem('access-granted') === 'true') {
+                document.getElementById('verrouillage').style.display = 'none';
+                appliquerRestrictions(sessionStorage.getItem('user-class'));
             }
         }
 
