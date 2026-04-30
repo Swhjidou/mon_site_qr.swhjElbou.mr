@@ -195,6 +195,24 @@
         <p id="erreur-code" style="color:#ffcccb; margin-top:10px; display:none;">Code incorrect, réessayez.</p>
     </div>
 
+    <div id="verrouillage" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#1a73e8; z-index:9999; display:flex; justify-content:center; align-items:center; color:white; flex-direction:column; font-family: 'Segoe UI', sans-serif;">
+        <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 25px; backdrop-filter: blur(10px); text-align: center; border: 1px solid rgba(255,255,255,0.2); width: 80%; max-width: 400px;">
+            <div style="font-size: 50px; margin-bottom: 10px;">🎓</div>
+            <h2 style="margin-bottom: 5px;">Espace Élève</h2>
+            <p style="margin-bottom: 25px; opacity: 0.9;">Veuillez vous identifier</p>
+            
+            <input type="text" id="userName" placeholder="Votre Nom Complet" style="width: 100%; padding:12px; border-radius:15px; border:none; text-align:center; font-size:1rem; outline:none; margin-bottom: 15px;">
+            
+            <input type="password" id="codePin" placeholder="Mot de passe" style="width: 100%; padding:12px; border-radius:15px; border:none; text-align:center; font-size:1rem; outline:none; margin-bottom: 20px;">
+            
+            <button onclick="verifierAcces()" style="width: 100%; padding:12px; border-radius:15px; border:none; background:white; color:#1a73e8; font-weight:bold; cursor:pointer; font-size: 1rem; transition: 0.3s;">
+                Se connecter
+            </button>
+            
+            <p id="erreur-code" style="color:#ffcccb; margin-top:15px; display:none; font-size: 0.9rem;">Nom ou mot de passe incorrect.</p>
+        </div>
+    </div>
+
     <script>
         const dateExpiration = new Date(2026, 5, 8, 23, 59); // 8 Avril 2026
 
@@ -296,6 +314,48 @@
             
             modele.style.display = "flex";
             imageModele.src = photosActuelles[indexActuel].src;
+        }
+
+
+        function verifierAcces() {
+            const nomSaisi = document.getElementById('userName').value.trim();
+            const passSaisi = document.getElementById('codePin').value;
+            
+            // CONFIGURATION
+            const motDePasseValide = "2026"; // Ton mot de passe
+            
+            // Vérification : Le nom ne doit pas être vide et le pass doit être correct
+            if (nomSaisi.length > 2 && passSaisi === motDePasseValide) {
+                // Cacher l'écran de verrouillage
+                document.getElementById('verrouillage').style.display = 'none';
+                
+                // Sauvegarder l'accès et le nom pour la session
+                sessionStorage.setItem('access-granted', 'true');
+                sessionStorage.setItem('user-name', nomSaisi);
+                
+                // Optionnel : Changer le titre d'accueil pour l'élève
+                const titreAccueil = document.querySelector('#accueil h3');
+                if(titreAccueil) titreAccueil.innerText = "Bonjour, " + nomSaisi + " !";
+                
+            } else {
+                const messageErreur = document.getElementById('erreur-code');
+                messageErreur.style.display = 'block';
+                if (nomSaisi.length <= 2) {
+                    messageErreur.innerText = "Veuillez entrer votre nom complet.";
+                } else {
+                    messageErreur.innerText = "Mot de passe incorrect.";
+                }
+            }
+        }
+
+        // Vérifier au rechargement de la page
+        window.onload = function() {
+            if (sessionStorage.getItem('access-granted') === 'true') {
+                document.getElementById('verrouillage').style.display = 'none';
+                const nom = sessionStorage.getItem('user-name');
+                const titreAccueil = document.querySelector('#accueil h3');
+                if(titreAccueil) titreAccueil.innerText = "Bonjour, " + nom + " !";
+            }
         }
     </script>
 </body>
