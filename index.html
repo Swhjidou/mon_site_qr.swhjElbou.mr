@@ -232,6 +232,15 @@
         const imageModele = document.getElementById("imageModele");
 
         function ouvrirOnglet(evt, nomOnglet) {
+            const classeAutorisee = sessionStorage.getItem('user-class');
+
+            // Sécurité : Si l'élève tente d'accéder à une autre classe que la sienne
+            if (nomOnglet !== 'accueil' && nomOnglet !== classeAutorisee) {
+                alert("Accès refusé : Vous n'appartenez pas à cette classe.");
+                return;
+            }
+
+            // Le reste de ton code habituel pour changer d'onglet...
             let tabContents = document.getElementsByClassName("tab-content");
             for (let i = 0; i < tabContents.length; i++) {
                 tabContents[i].style.display = "none";
