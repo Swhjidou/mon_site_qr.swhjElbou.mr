@@ -46,9 +46,28 @@
             <h3>Correction - Classe 5</h3>
             <div class="gallery">
                 <div class="image-container">                
-                    <img src="static/images/Capture.jpeg" onclick="ouvrirPleinEcran(0, 'classe5')" data-id="classe5_img1">
-                    <!-- <img src="static/photo2.jpeg" onclick="ouvrirPleinEcran(1, 'classe5')"> --> 
-                     <div class="view_counter" id="counter_classe5_img1">0</div>       
+                    <img src="static/photo1.jpeg" 
+                        onclick="ouvrirPleinEcran(0, 'classe5')" 
+                        data-id="classe5_img1">
+                    <div class="view_counter" id="counter_classe5_img1">
+                        0
+                    </div>
+                </div>
+                <div class="image-container">                
+                    <img src="static/photo2.jpeg" 
+                        onclick="ouvrirPleinEcran(1, 'classe5')" 
+                        data-id="classe5_img2">
+                    <div class="view_counter" id="counter_classe5_img2">
+                        0
+                    </div>
+                </div>
+                <div class="image-container">                
+                    <img src="static/photo3.jpeg" 
+                        onclick="ouvrirPleinEcran(2, 'classe5')" 
+                        data-id="classe5_img3">
+                    <div class="view_counter" id="counter_classe5_img3">
+                        0
+                    </div>
                 </div>
             </div>
         </div>
@@ -268,7 +287,7 @@
             verifierConnexionExistante();
             // Désactiver le clic droit sur les images
             document.addEventListener('contextmenu', function(e) {
-                if (e.target.tagName === "ING") {
+                if (e.target.tagName === "IMG") {
                     e.preventDefault();
                 }
             });
