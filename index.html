@@ -30,14 +30,16 @@
 
         <div id="accueil" class="tab-content" style="display: block;">
             <div class="welcome-card">
-                <div style="font-size: 40px;">ℹ️</div>
-                <h3>Bienvenue</h3>
-                <p>Sélectionnez votre <strong>niveau scolaire</strong> pour voir les corrections.</p>
+                <h3 id="messageBienvenue">
+                    Bonjour dans la classe de 5 C&D ! 👋
+                </h3>
+                <p>
+                    Sélectionnez <strong>Classe 5</strong> pour voir les corrections.
+                </p>
                 <ul class="instructions-list">
                     <li>Cliquez sur une classe ci-dessus.</li>
                     <li>Cliquez sur une image pour l'agrandir.</li>
                 </ul>
-            </div>
         </div>
         
         <div id="classe5" class="tab-content">
@@ -168,7 +170,7 @@
                 }
 
                 // Modifier le message de bienvenue
-                const titreAccueil = document.querySelector('#accueil h3');
+                const titreAccueil = document.getElementById('messageBienvenue');
                 if (titreAccueil) {
                     titreAccueil.innerHTML = 'Bonjour dans classe de ' + nom + ' ! 👋';
                 }
@@ -254,7 +256,7 @@
                     boutonClasse5.style.display = 'inline-flex';
                 }
                 
-                const titreAccueil = document.querySelector('#accueil h3');
+                const titreAccueil = document.getElementById('messageBienvenue');
                 if (titreAccueil) {
                     titreAccueil.innerHTML = 'Bonjour dans la classe ' + nom + ' ! 👋';
                 }
