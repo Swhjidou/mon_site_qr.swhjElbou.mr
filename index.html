@@ -21,7 +21,7 @@
                     <span class="class-label">Accueil</span>
                 </button>
 
-                <!-- Button d'accueil -->
+                <!-- Button de classe 5 -->
                 <button class="tab-button" onclick="ouvrirOnglet(event, 'classe5')" style="display: none;">
                     <span class="class-label">Classe 5C/D</span>
                 </button>
@@ -43,8 +43,8 @@
             </div>
         </div>
     </div>
-        <div id="classe5" class="tab-content">
-            <h3>Correction - Classe 5</h3>
+        <div id="classe5" class="tab-content" style="display: none;">
+            <h3>Correction de Series sur fonctions numerique</h3>
             <div class="gallery">
                 <div class="image-container">                
                     <img src="static/photo1.jpeg" 
@@ -151,8 +151,8 @@
 
         // Exemple d'identifiants valides (à modifier selon tes besoins)
         const identifiantsValides = [
-            { nom: "Elbou", motDePasse: "1234" },
-            { nom: "Swh Jidou", motDePasse: "5678" },
+            { nom: "5CG4", motDePasse: "+1234+" },
+            { nom: "5DG2", motDePasse: "+5678+" },
             { nom: "Ami", motDePasse: "admin123" }
         ];
         // --- LOGIQUE D'ACCÈS ---
@@ -172,7 +172,6 @@
             if (utilisateurValide) {
                 // Sauvegarder le nom de l'élève dans sessionStorage
                 sessionStorage.setItem('user-name', nom);
-                sessionStorage.setItem('user-class', 'classe5');
                 sessionStorage.setItem('is-connected', 'true');
                 // Afficher le contenu principal
                 document.getElementById('contenu-page').style.display = 'block';
@@ -193,7 +192,7 @@
                 // Modifier le message de bienvenue
                 const titreAccueil = document.getElementById('messageBienvenue');
                 if (titreAccueil) {
-                    titreAccueil.innerHTML = 'Bonjour dans classe de ' + nom + ' ! 👋';
+                    titreAccueil.innerHTML = 'Bonjour dans la classe de ' + nom + ' ! 👋';
                 }
 
                 // Petit message de bienvenue
