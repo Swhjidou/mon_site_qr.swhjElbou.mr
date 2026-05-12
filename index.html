@@ -149,6 +149,131 @@
 
     <script>
 
+        // ========== VARIABLES POUR L'INACTIVITÉ (SANS AFFICHAGE) ==========
+        let inactivityTimer = null;
+        const INACTIVITY_DELAY = 2 * 60 * 1000; // 2 minutes en millisecondes
+        
+        // ========== FONCTIONS DE GESTION D'INACTIVITÉ ==========
+        
+        // Réinitialiser le timer d'inactivité
+        function resetInactivityTimer() {
+            // Annuler l'ancien timer
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
+            // Redémarrer le timer
+            startInactivityTimer();
+        }
+
+        // Démarrer le timer d'inactivité
+        function startInactivityTimer() {
+            // Annuler tout timer existant
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
+
+            // Créer un nouveau timer
+            inactivityTimer = setTimeout(function() {
+                // Timeout atteint : bloquer la page
+                bloquerPageParInactivite();
+            }, INACTIVITY_DELAY);
+        }
+
+        // Bloquer la page à cause de l'inactivité
+        function bloquerPageParInactivite() {
+            // Supprimer les données de session
+            sessionStorage.removeItem('is-connected');
+            sessionStorage.removeItem('user-name');
+
+            // Masquer le contenu principal
+            document.getElementById('contenu-page').style.display = 'none';
+
+            // Afficher l'écran de connexion
+            const verrouillage = document.getElementById('verrouillage');
+            verrouillage.style.display = 'flex';
+
+            // Ajouter un message d'information
+            const errorDiv = document.getElementById('errorMessage');
+            if (errorDiv) {
+                errorDiv.textContent = 'Session expirée : 2 minutes d\'inactivité. Veuillez vous reconnecter.';
+                errorDiv.style.display = 'block';
+                
+                // Faire disparaître le message après 3 secondes
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+
+            // Vider les champs
+            document.getElementById('fulName').value = '';
+            document.getElementById('password').value = '';
+
+            // Réinitialiser le timer
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = null;
+            }
+        }
+
+        // Arrêter le timer (quand on se déconnecte volontairement)
+        function stopInactivityTimer() {
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = null;
+            }
+        }
+
+        // Démarrer la surveillance d'inactivité (après connexion)
+        function startInactivityMonitoring() {
+            // Annuler l'ancienne surveillance
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
+
+            // Démarrer le timer
+            startInactivityTimer();
+
+            // Écouter les événements d'activité
+            const event = ['mousedown', 'mousemove', 'keypress', 'scroll', 'click', 'touchstart', 'touchend'];
+            event.forEach(event => {
+                document.removeEventListener(event, resetInactivityTimer);
+                document.addEventListener(event, resetInactivityTimer);
+            })
+        }
+
+        // Ajouter cette fonction pour nettoyer les données avant la fermeture de la page
+        function nettoyerSessionAvantFermeture() {
+            // Supprimer les données de session
+            sessionStorage.removeItem('is-connected');
+            sessionStorage.removeItem('user-name');
+            
+            // Vider les champs si l'écran de connexion est visible
+            const fullNameField = document.getElementById('fullName');
+            const passwordField = document.getElementById('password');
+            if (fullNameField) fullNameField.value = '';
+            if (passwordField) passwordField.value = '';
+        }
+
+        // Ajouter cet écouteur d'événement pour la fermeture/actualisation de la page
+        window.addEventListener('beforeunload', function() {
+            nettoyerSessionAvantFermeture();
+        });
+
+        // Optionnel : pour fermer l'onglet (plus fiable)
+        window.addEventListener('pagehide', function() {
+            nettoyerSessionAvantFermeture();
+        });
+
+        // Optionnel : pour la visibilité de la page (si l'utilisateur change d'onglet)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Optionnel : vous pouvez aussi nettoyer quand l'utilisateur quitte l'onglet
+                // nettoyerSessionAvantFermeture();
+            }
+        });
+
+        // ========== LOGIQUE D'ACCÈS ==========
+
         // Exemple d'identifiants valides (à modifier selon tes besoins)
         const identifiantsValides = [
             { nom: "5CG4", motDePasse: "+1234+" },
@@ -198,6 +323,8 @@
                 // Petit message de bienvenue
                 alert('Bienvenue mon éleve de ' + nom + ' !');
 
+                // DÉMARRER LA SURVEILLANCE D'INACTIVITÉ (SANS AFFICHAGE)
+                startInactivityMonitoring();
             } else {
                 // Afficher l'erreur (dans le texte rouge prévu dans ta boîte)
                 const erreurCode = document.getElementById('erreur-code');
@@ -255,6 +382,10 @@
                 if (e.key === "ArrowLeft") photoPrecedente();
                 if (e.key === "Escape") fermerPleinEcran();
             }
+            // Réinitialiser le timer pour toute touche pressée
+            if (sessionStorage.getItem('is-connected') === 'true') {
+                resetInactivityTimer();
+            }
         });
 
         // Vérifier si l'utilisateur est déjà connecté (après refresh de page)
@@ -280,6 +411,9 @@
                 if (titreAccueil) {
                     titreAccueil.innerHTML = 'Bonjour dans la classe ' + nom + ' ! 👋';
                 }
+
+                // Redémarrer la surveillance d'inactivité
+                startInactivityMonitoring();
             }
         }
 
@@ -296,7 +430,11 @@
 
         // --- GESTION DES ONGLETS ---
         function ouvrirOnglet(evt, nomOnglet) {
-            
+            // Réinitialiser le timer d'inactivité
+            if (sessionStorage.getItem('is-connected') === 'true') {
+                resetInactivityTimer();
+            }
+
             // Récupérer tous les contenus d'onglets
             let tabContents = document.getElementsByClassName("tab-content");
             // Cacher tous les onglets
@@ -319,6 +457,18 @@
             if (evt && evt.currentTarget) {
                 evt.currentTarget.classList.add("active");
             }
+        }
+
+        // Surcharger les événements sur le document pour détecter l'activité
+        if (document) {
+            const eventsToMonitor = ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+            eventsToMonitor.forEach(event => {
+                document.addEventListener(event, function() {
+                    if (sessionStorage.getItem('is-connected') === 'true') {
+                        resetInactivityTimer();
+                    }
+                });
+            });
         }
     </script>
 </body>
