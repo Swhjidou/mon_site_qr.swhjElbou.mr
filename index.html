@@ -388,14 +388,19 @@
         const modele = document.getElementById("modele");
         const imageModele = document.getElementById("imageModele");
 
+
+
         function ouvrirPleinEcran(index, idOnglet) {
 
             // Récupérer toutes les images
             photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
         
+            // Vérifier si des images existent
+            if (!photosActuelles.length) return;
+        
             indexActuel = index;
         
-            // Afficher l'image
+            // Afficher la modale
             modele.style.display = "flex";
             imageModele.src = photosActuelles[indexActuel].src;
         
@@ -403,23 +408,38 @@
             // COMPTER LES VISITES
             // =============================
         
-            // Récupérer l'image actuelle
-            const imageActuelle = photosActuelles[indexActuel];
+            try {
         
-            // Récupérer son data-id
-            const imageId = imageActuelle.dataset.id;
+                // Image actuelle
+                const imageActuelle = photosActuelles[indexActuel];
         
-            // Trouver le compteur correspondant
-            const compteur = document.getElementById('counter_' + imageId);
+                // data-id
+                const imageId = imageActuelle.dataset.id;
         
-            // Augmenter le nombre
-            let nombre = parseInt(compteur.textContent);
+                if (imageId) {
         
-            nombre++;
+                    // Compteur correspondant
+                    const compteur = document.getElementById('counter_' + imageId);
         
-            // Afficher le nouveau nombre
-            compteur.textContent = nombre;
+                    if (compteur) {
+        
+                        // Nombre actuel
+                        let nombre = parseInt(compteur.textContent) || 0;
+        
+                        // Incrémenter
+                        nombre++;
+        
+                        // Afficher
+                        compteur.textContent = nombre;
+                    }
+                }
+        
+            } catch(error) {
+        
+                console.log("Erreur compteur :", error);
+            }
         }
+
 
         // function ouvrirPleinEcran(index, idOnglet) {
         //     // Récupérer toutes les images de la galerie de l'onglet
