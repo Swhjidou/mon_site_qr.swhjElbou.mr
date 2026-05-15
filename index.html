@@ -42,7 +42,7 @@
                 </ul>
             </div>
         </div>
-    </div>
+    
         <div id="classe5" class="tab-content" style="display: none;">
             <h3>Correction de Series sur fonctions numerique</h3>
             <div class="gallery">
@@ -120,7 +120,7 @@
             <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
             <div class="nav-gauche" onclick="event.stopPropagation(); photoPrecedente()">&#10094;</div>
         </div>
-    </div>
+  
 
     <div class="login-container" id="verrouillage"
             style="position:fixed; 
@@ -244,7 +244,7 @@
             }
 
             // Vider les champs
-            document.getElementById('fulName').value = '';
+            document.getElementById('fullName').value = '';
             document.getElementById('password').value = '';
 
             // Réinitialiser le timer
@@ -389,14 +389,47 @@
         const imageModele = document.getElementById("imageModele");
 
         function ouvrirPleinEcran(index, idOnglet) {
-            // Récupérer toutes les images de la galerie de l'onglet
-            photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
-            indexActuel = index;
 
-            // Afficher la modale
+            // Récupérer toutes les images
+            photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
+        
+            indexActuel = index;
+        
+            // Afficher l'image
             modele.style.display = "flex";
             imageModele.src = photosActuelles[indexActuel].src;
+        
+            // =============================
+            // COMPTER LES VISITES
+            // =============================
+        
+            // Récupérer l'image actuelle
+            const imageActuelle = photosActuelles[indexActuel];
+        
+            // Récupérer son data-id
+            const imageId = imageActuelle.dataset.id;
+        
+            // Trouver le compteur correspondant
+            const compteur = document.getElementById('counter_' + imageId);
+        
+            // Augmenter le nombre
+            let nombre = parseInt(compteur.textContent);
+        
+            nombre++;
+        
+            // Afficher le nouveau nombre
+            compteur.textContent = nombre;
         }
+
+        // function ouvrirPleinEcran(index, idOnglet) {
+        //     // Récupérer toutes les images de la galerie de l'onglet
+        //     photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
+        //     indexActuel = index;
+
+        //     // Afficher la modale
+        //     modele.style.display = "flex";
+        //     imageModele.src = photosActuelles[indexActuel].src;
+        // }
 
         function fermerPleinEcran() {
             modele.style.display = "none";
