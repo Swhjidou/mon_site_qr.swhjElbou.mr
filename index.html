@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Espace Élève - Protection Anti-Capture</title>
+    <title>Espace Élève - Protection Anti-Capture Avancée</title>
     <style>
-        /* Styles de base */
         * {
             margin: 0;
             padding: 0;
@@ -15,10 +14,13 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
+            position: relative;
         }
         
-        /* Protection FLAG (ajout d'un élément qui rend la capture moins lisible) */
-        .anti-screenshot-overlay {
+        /* ========== PROTECTIONS VISUELLES AVANCÉES ========== */
+        
+        /* 1. Overlay de moiré dynamique (animé) */
+        .moire-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -26,36 +28,72 @@
             height: 100%;
             background: repeating-linear-gradient(
                 45deg,
-                rgba(255, 255, 255, 0.03) 0px,
-                rgba(255, 255, 255, 0.03) 20px,
-                rgba(0, 0, 0, 0.03) 20px,
-                rgba(0, 0, 0, 0.03) 40px
+                rgba(0, 0, 0, 0.05) 0px,
+                rgba(0, 0, 0, 0.05) 2px,
+                transparent 2px,
+                transparent 8px
             );
             pointer-events: none;
-            z-index: 9999;
+            z-index: 9998;
+            animation: moireMove 0.3s linear infinite;
         }
         
-        /* Message d'avertissement flottant */
-        .screenshot-toast {
+        @keyframes moireMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 10px 10px; }
+        }
+        
+        /* 2. Overlay de scintillement (rend la capture floue) */
+        .flicker-overlay {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: #ff4444;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 14px;
-            z-index: 10001;
-            font-family: monospace;
-            display: none;
-            white-space: nowrap;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,68,68,0.5);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            pointer-events: none;
+            z-index: 9997;
+            animation: flicker 0.1s infinite;
         }
         
-        /* Empêcher la sélection */
+        @keyframes flicker {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* 3. Effet de flou périodique */
+        .blur-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(0px);
+            pointer-events: none;
+            z-index: 9996;
+            transition: backdrop-filter 0.05s;
+        }
+        
+        /* 4. Superposition de bruit visuel */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.08"/></svg>');
+            background-repeat: repeat;
+            pointer-events: none;
+            z-index: 9995;
+            animation: noiseShift 0.2s infinite;
+        }
+        
+        @keyframes noiseShift {
+            0% { background-position: 0 0; }
+            100% { background-position: 10px 10px; }
+        }
+        
+        /* 5. Protection contre la sélection */
         body {
             user-select: none;
             -webkit-user-select: none;
@@ -65,16 +103,37 @@
         img {
             -webkit-user-drag: none;
             user-drag: none;
-            pointer-events: auto;
         }
         
-        /* Contenu principal */
+        /* Contenu principal avec protection anti-capture d'écran */
         #contenu-page {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             position: relative;
             z-index: 1;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        /* Message d'avertissement */
+        .screenshot-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.95);
+            color: #ff4444;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            z-index: 10001;
+            display: none;
+            white-space: nowrap;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid #ff4444;
         }
         
         h1 {
@@ -151,6 +210,22 @@
             width: 100%;
             height: 250px;
             object-fit: cover;
+            filter: brightness(0.95) contrast(1.05);
+        }
+        
+        /* Protection supplémentaire : watermark sur les images */
+        .image-container::after {
+            content: '© ESPACE ÉLÈVE - PROTÉGÉ';
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(0,0,0,0.5);
+            color: rgba(255,255,255,0.3);
+            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 2;
         }
         
         .view_counter {
@@ -162,9 +237,10 @@
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 0.8rem;
+            z-index: 2;
         }
         
-        /* Modal */
+        /* Modal avec protection renforcée */
         .modele {
             display: none;
             position: fixed;
@@ -173,7 +249,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.95);
+            background-color: rgba(0,0,0,0.98);
             justify-content: center;
             align-items: center;
         }
@@ -182,6 +258,20 @@
             max-width: 90%;
             max-height: 90%;
             object-fit: contain;
+            filter: brightness(0.98) contrast(1.02);
+        }
+        
+        /* Watermark sur l'image en plein écran */
+        .modele::after {
+            content: attr(data-watermark);
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: rgba(255,255,255,0.15);
+            font-size: 10px;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 10001;
         }
         
         .fermer {
@@ -192,6 +282,7 @@
             font-size: 40px;
             font-weight: bold;
             cursor: pointer;
+            z-index: 10002;
         }
         
         .nav-gauche, .nav-droite {
@@ -204,6 +295,7 @@
             padding: 20px;
             background: rgba(0,0,0,0.5);
             border-radius: 50%;
+            z-index: 10002;
         }
         
         .nav-gauche { left: 20px; }
@@ -261,16 +353,19 @@
             border-radius: 10px;
         }
         
-        /* Watermark animé */
+        /* Watermark principal */
         .watermark {
             position: fixed;
             bottom: 5px;
             left: 5px;
-            color: rgba(0,0,0,0.08);
+            color: rgba(0,0,0,0.15);
             font-size: 8px;
-            z-index: 9998;
+            z-index: 9999;
             pointer-events: none;
             font-family: monospace;
+            background: rgba(255,255,255,0.5);
+            padding: 2px 5px;
+            border-radius: 3px;
         }
         
         @media (max-width: 768px) {
@@ -281,9 +376,13 @@
 </head>
 
 <body>
-    <!-- Overlay anti-capture (crée un effet de moiré sur les captures) -->
-    <div class="anti-screenshot-overlay"></div>
-    <div id="screenshotToast" class="screenshot-toast">🚫 CAPTURE D'ÉCRAN DÉTECTÉE 🚫</div>
+    <!-- Multiples couches de protection visuelle -->
+    <div class="moire-overlay"></div>
+    <div class="flicker-overlay"></div>
+    <div class="noise-overlay"></div>
+    <div id="blurEffect" class="blur-effect"></div>
+    
+    <div id="screenshotToast" class="screenshot-toast">🚫 CAPTURE D'ÉCRAN DÉTECTÉE - CONTENU PROTÉGÉ 🚫</div>
     
     <div id="contenu-page" style="display: none;">
         <h1>Espace Correction</h1>
@@ -347,7 +446,7 @@
             </div>
         </div>
         
-        <div id="modele" class="modele" onclick="fermerPleinEcran()">
+        <div id="modele" class="modele" onclick="fermerPleinEcran()" data-watermark="">
             <span class="fermer" onclick="fermerPleinEcran()">&times;</span>
             <img id="imageModele" class="modele-contenu" draggable="false">
             <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
@@ -370,134 +469,143 @@
     <div class="watermark" id="watermark"></div>
     
     <script>
-        // Détection Android
+        // Détection Android/iOS
         const isAndroid = /android/i.test(navigator.userAgent);
         const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
         
-        // ========== PROTECTION ANTI-CAPTURE SPÉCIALE ANDROID ==========
-        
         let screenshotDetected = false;
+        let blurIntensity = 0;
+        let blurInterval;
         
         function showToast(message) {
             const toast = document.getElementById('screenshotToast');
-            toast.textContent = message || '🚫 CAPTURE D\'ÉCRAN DÉTECTÉE 🚫';
+            toast.textContent = message || '🚫 CAPTURE D\'ÉCRAN DÉTECTÉE - CONTENU PROTÉGÉ 🚫';
             toast.style.display = 'block';
             setTimeout(() => {
                 toast.style.display = 'none';
             }, 3000);
         }
         
-        // 1. Détection via Visibility API (changement d'application)
+        // Fonction pour brouiller l'écran temporairement
+        function blurScreen() {
+            const blurElement = document.getElementById('blurEffect');
+            blurIntensity = 5;
+            blurElement.style.backdropFilter = 'blur(5px)';
+            setTimeout(() => {
+                blurIntensity = 0;
+                blurElement.style.backdropFilter = 'blur(0px)';
+            }, 500);
+        }
+        
+        // 1. Détection via Visibility API
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && !screenshotDetected) {
                 screenshotDetected = true;
-                showToast('⚠️ Changement d\'application détecté !');
+                blurScreen();
+                showToast('⚠️ Capture d\'écran détectée - Contenu brouillé !');
                 setTimeout(() => { screenshotDetected = false; }, 1000);
             }
         });
         
-        // 2. Détection via les touches (Volume + Power)
+        // 2. Détection des touches
         let lastVolumeTime = 0;
         document.addEventListener('keydown', function(e) {
-            // Détection des touches Volume sur Android
             if (e.key === 'VolumeDown' || e.key === 'VolumeUp' || e.keyCode === 175 || e.keyCode === 174) {
                 const now = Date.now();
                 if (now - lastVolumeTime < 500) {
-                    // Deux touches volume rapides = possible capture
-                    showToast('📸 Capture d\'écran détectée !');
+                    blurScreen();
+                    showToast('📸 Capture d\'écran bloquée !');
                 }
                 lastVolumeTime = now;
             }
             
-            // Blocage des touches de capture connues
             if (e.key === 'PrintScreen' || e.keyCode === 44) {
                 e.preventDefault();
+                blurScreen();
                 showToast('📸 Capture d\'écran bloquée !');
                 return false;
             }
             
-            // Blocage F12, Ctrl+Shift+I, etc.
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
                 e.preventDefault();
                 return false;
             }
         });
         
-        // 3. Détection via la perte de focus (pour les applis de capture)
+        // 3. Perte de focus
         window.addEventListener('blur', function() {
             if (!screenshotDetected) {
                 screenshotDetected = true;
-                setTimeout(() => {
-                    showToast('⚠️ Capture d\'écran possible !');
-                }, 200);
+                blurScreen();
+                showToast('⚠️ Capture d\'écran détectée !');
                 setTimeout(() => { screenshotDetected = false; }, 1000);
             }
         });
         
-        // 4. Injection d'un flag anti-capture dans les images (rend les captures moins lisibles)
-        function addAntiScreenshotEffect() {
-            // Ajoute un effet de moiré qui n'affecte pas l'affichage normal mais rend les captures moins nettes
-            const overlay = document.createElement('div');
-            overlay.style.position = 'fixed';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.pointerEvents = 'none';
-            overlay.style.zIndex = '99999';
-            overlay.style.background = 'repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 2px, transparent 2px, transparent 8px)';
-            overlay.style.mixBlendMode = 'difference';
-            document.body.appendChild(overlay);
-        }
-        
-        // 5. Détection spécifique pour Android (via l'API Screen Orientation)
+        // 4. Détection Android spécifique
         if (isAndroid) {
             let orientationChanged = false;
-            screen.orientation.addEventListener('change', function() {
-                if (!orientationChanged) {
-                    orientationChanged = true;
-                    setTimeout(() => {
-                        showToast('📱 Changement d\'orientation détecté');
-                        orientationChanged = false;
-                    }, 500);
-                }
-            });
+            if (screen.orientation) {
+                screen.orientation.addEventListener('change', function() {
+                    if (!orientationChanged) {
+                        orientationChanged = true;
+                        setTimeout(() => {
+                            blurScreen();
+                            showToast('📱 Capture détectée');
+                            orientationChanged = false;
+                        }, 500);
+                    }
+                });
+            }
         }
         
-        // 6. Empêcher le long-press sur les images (menu "Enregistrer l'image")
+        // 5. Empêcher le long-press
         document.querySelectorAll('img').forEach(img => {
             img.addEventListener('contextmenu', (e) => e.preventDefault());
-            img.addEventListener('touchstart', (e) => {
-                let timer;
-                e.target.addEventListener('touchmove', () => clearTimeout(timer));
-                e.target.addEventListener('touchend', () => clearTimeout(timer));
-            });
+            img.addEventListener('dragstart', (e) => e.preventDefault());
         });
         
-        // 7. Filigrane dynamique avec timestamp
+        // 6. Filigrane dynamique
         function updateWatermark() {
             const watermark = document.getElementById('watermark');
+            const modalWatermark = document.getElementById('modele');
             const now = new Date();
             const session = sessionStorage.getItem('user-name') || 'visiteur';
-            watermark.innerHTML = `🔒 ${session} | ${now.toLocaleDateString()} ${now.toLocaleTimeString()} | Session sécurisée 🔒`;
+            const watermarkText = `🔒 ${session} | ${now.toLocaleDateString()} ${now.toLocaleTimeString()} | Session sécurisée 🔒`;
+            watermark.innerHTML = watermarkText;
+            if (modalWatermark) {
+                modalWatermark.setAttribute('data-watermark', watermarkText);
+            }
         }
-        setInterval(updateWatermark, 1000);
+        setInterval(updateWatermark, 500);
         
-        // 8. Détection des outils de capture tierces (via l'API Performance)
-        if (window.performance && performance.getEntriesByType) {
-            setInterval(() => {
-                const entries = performance.getEntriesByType('resource');
-                // Vérification basique d'activité suspecte
-            }, 5000);
-        }
+        // 7. Protection anti-copie améliorée
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            blurScreen();
+            showToast('📋 Copie bloquée !');
+            return false;
+        });
         
-        // 9. Ajouter un message invisible dans la console
-        console.log('%c🔒 ESPACE SÉCURISÉ - Toute capture d\'écran est interdite et sera détectée 🔒', 'color: red; font-size: 16px; font-weight: bold;');
+        // 8. Détection des outils développeur
+        let devToolsOpen = false;
+        setInterval(() => {
+            const threshold = 160;
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthThreshold || heightThreshold) {
+                if (!devToolsOpen) {
+                    devToolsOpen = true;
+                    blurScreen();
+                    showToast('⚠️ Outils développeur détectés !');
+                }
+            } else {
+                devToolsOpen = false;
+            }
+        }, 2000);
         
-        // 10. Activer les protections
-        addAntiScreenshotEffect();
-        
-        // ========== FIN PROTECTIONS ==========
+        console.log('%c🔒 ESPACE SÉCURISÉ - Protection anti-capture ACTIVE 🔒', 'color: red; font-size: 16px; font-weight: bold;');
         
         // ========== COMPTEUR DE VISITEURS ==========
         function initVisitorCounter() {
@@ -633,6 +741,7 @@
             indexActuel = index;
             modele.style.display = "flex";
             imageModele.src = photosActuelles[indexActuel].src;
+            updateWatermark();
             try {
                 const imageId = photosActuelles[indexActuel].dataset.id;
                 const compteur = document.getElementById('counter_' + imageId);
@@ -641,8 +750,8 @@
         }
         
         function fermerPleinEcran() { modele.style.display = "none"; }
-        function photoSuivante() { if (photosActuelles.length) { indexActuel = (indexActuel + 1) % photosActuelles.length; imageModele.src = photosActuelles[indexActuel].src; } }
-        function photoPrecedente() { if (photosActuelles.length) { indexActuel = (indexActuel - 1 + photosActuelles.length) % photosActuelles.length; imageModele.src = photosActuelles[indexActuel].src; } }
+        function photoSuivante() { if (photosActuelles.length) { indexActuel = (indexActuel + 1) % photosActuelles.length; imageModele.src = photosActuelles[indexActuel].src; updateWatermark(); } }
+        function photoPrecedente() { if (photosActuelles.length) { indexActuel = (indexActuel - 1 + photosActuelles.length) % photosActuelles.length; imageModele.src = photosActuelles[indexActuel].src; updateWatermark(); } }
         
         document.addEventListener('keydown', (e) => {
             if (modele.style.display === "flex") {
