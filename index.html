@@ -5,14 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Élève</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Protection contre la sélection et le glisser-déposer */
+        body {
+            user-select: none; /* Empêche la sélection de texte */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        img {
+            pointer-events: auto; /* Garde le clic pour l'agrandissement */
+            -webkit-user-drag: none; /* Empêche le glissement des images */
+            user-drag: none;
+        }
+        
+        /* Protection visuelle pour les captures */
+        .protect-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 9998;
+            pointer-events: none;
+        }
+        
+        /* Message d'avertissement pour les captures */
+        .screenshot-warning {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: #ff4444;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10000;
+            font-family: monospace;
+            display: none;
+            pointer-events: none;
+        }
+    </style>
 </head>
 
-
 <body>
+    <!-- Overlay de protection -->
+    <div class="protect-overlay"></div>
+    <div id="screenshotWarning" class="screenshot-warning">📸 Capture d'écran détectée !</div>
+    
     <div id="contenu-page" style="display: none;">
         <h1>Espace Correction</h1>
 
-        
         <div class="ribbon-container">
             <div class="ribbon">
                 <!-- Button d'accueil -->
@@ -40,6 +85,18 @@
                     <li>Cliquez sur une classe ci-dessus.</li>
                     <li>Cliquez sur une image pour l'agrandir.</li>
                 </ul>
+                
+                <!-- Ajout du compteur de visiteurs (caché par défaut) -->
+                <div id="visitorStatsContainer" class="visitor-stats" style="margin-top: 30px; padding: 20px; background: #f0f0f0; border-radius: 15px; text-align: center; display: none;">
+                    <h4 style="color: #1a73e8; margin-bottom: 15px;">📊 Statistiques de visite</h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: #333;" id="visitorCounter">
+                        0
+                    </div>
+                    <div style="margin-top: 10px; color: #666;">visiteurs au total</div>
+                    <div style="margin-top: 15px; font-size: 0.9rem; color: #888;" id="lastVisitorInfo">
+                        Aucun visiteur pour le moment
+                    </div>
+                </div>
             </div>
         </div>
     
@@ -49,7 +106,8 @@
                 <div class="image-container">                
                     <img src="static/FN5DCIS.jpg" 
                         onclick="ouvrirPleinEcran(0, 'classe5')" 
-                        data-id="classe5_img1">
+                        data-id="classe5_img1"
+                        draggable="false">
                     <div class="view_counter" id="counter_classe5_img1">
                         0
                     </div>
@@ -58,7 +116,8 @@
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC1IR26.jpg" 
                         onclick="ouvrirPleinEcran(1, 'classe5')" 
-                        data-id="classe5_img2">
+                        data-id="classe5_img2"
+                        draggable="false">
                     <div class="view_counter" id="counter_classe5_img2">
                         0
                     </div>
@@ -67,7 +126,8 @@
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC2IR26.jpg" 
                         onclick="ouvrirPleinEcran(2, 'classe5')" 
-                        data-id="classe5_img3">
+                        data-id="classe5_img3"
+                        draggable="false">
                     <div class="view_counter" id="counter_classe5_img3">
                         0
                     </div>
@@ -76,7 +136,8 @@
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC3IR26.jpg" 
                         onclick="ouvrirPleinEcran(3, 'classe5')" 
-                        data-id="classe5_img4">
+                        data-id="classe5_img4"
+                        draggable="false">
                     <div class="view_counter" id="counter_classe5_img4">
                         0
                     </div>
@@ -85,7 +146,8 @@
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC4IR26.jpg" 
                         onclick="ouvrirPleinEcran(4, 'classe5')" 
-                        data-id="classe5_img5">
+                        data-id="classe5_img5"
+                        draggable="false">
                     <div class="view_counter" id="counter_classe5_img5">
                         0
                     </div>
@@ -94,29 +156,19 @@
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC5IR26.jpg" 
                         onclick="ouvrirPleinEcran(5, 'classe5')" 
-                        data-id="classe5_img6">
+                        data-id="classe5_img6"
+                        draggable="false">
                     <div class="view_counter" id="counter_classe5_img6">
                         0
                     </div>
                 </div>
-                
-                 <!-- 
-                <div class="image-container">                
-                    <img src="static/photo3.jpeg" 
-                        onclick="ouvrirPleinEcran(2, 'classe5')" 
-                        data-id="classe5_img3">
-                    <div class="view_counter" id="counter_classe5_img3">
-                        0
-                    </div>
-                </div>
-                -->
             </div>
         </div>
 
         <!-- Fenêtre modale pour agrandir les photos -->
         <div id="modele" class="modele" onclick="fermerPleinEcran()">
             <span class="fermer" onclick="fermerPleinEcran()">&times;</span>
-            <img id="imageModele" class="modele-contenu">
+            <img id="imageModele" class="modele-contenu" draggable="false">
             <div class="nav-droite" onclick="event.stopPropagation(); photoSuivante()">&#10095;</div>
             <div class="nav-gauche" onclick="event.stopPropagation(); photoPrecedente()">&#10094;</div>
         </div>
@@ -180,99 +232,353 @@
                 font-size: 0.9rem;">Nom ou mot de passe incorrect.</p>
         </div>
 
-
-
         <div id="errorMessage" class="error-message"></div>
         <div id="successMessage" class="success-message"></div>
     </div>
 
     <script>
-
-        // ========== VARIABLES POUR L'INACTIVITÉ (SANS AFFICHAGE) ==========
+        // ========== PROTECTION CONTRE LES CAPTURES D'ÉCRAN ==========
+        
+        // Fonction pour afficher un avertissement
+        function showScreenshotWarning() {
+            const warning = document.getElementById('screenshotWarning');
+            if (warning) {
+                warning.style.display = 'block';
+                setTimeout(() => {
+                    warning.style.display = 'none';
+                }, 2000);
+            }
+        }
+        
+        // 1. Détection des touches de capture (Impr Ecran, Windows + Impr Ecran, etc.)
+        document.addEventListener('keydown', function(e) {
+            // Touche "Impr Ecran" (Print Screen)
+            if (e.key === 'PrintScreen' || e.key === 'PrintScreen' || e.keyCode === 44) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Windows + Impr Ecran
+            if (e.key === 'PrintScreen' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Alt + Impr Ecran
+            if (e.key === 'PrintScreen' && e.altKey) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + Shift + S (certains outils de capture)
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + S (sauvegarde)
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // F12 (outils développeur)
+            if (e.key === 'F12') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + Shift + I (outils développeur)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + U (code source)
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+        });
+        
+        // 2. Détection des combinaisons de touches pour les captures
+        let ctrlPressed = false;
+        let shiftPressed = false;
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Control') ctrlPressed = true;
+            if (e.key === 'Shift') shiftPressed = true;
+            
+            // Détection Windows + Shift + S (Outil Capture Windows 10/11)
+            if (ctrlPressed && shiftPressed && e.key === 'S') {
+                e.preventDefault();
+                showScreenshotWarning();
+            }
+        });
+        
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'Control') ctrlPressed = false;
+            if (e.key === 'Shift') shiftPressed = false;
+        });
+        
+        // 3. Protection contre le clic droit
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // 4. Protection contre le glisser-déposer des images
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        });
+        
+        // 5. Protection contre la copie d'images via l'API Clipboard
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            showScreenshotWarning();
+            return false;
+        });
+        
+        // 6. Détection des outils développeur ouverts (optionnel)
+        let devToolsOpen = false;
+        setInterval(() => {
+            const threshold = 160;
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthThreshold || heightThreshold) {
+                if (!devToolsOpen) {
+                    devToolsOpen = true;
+                    showScreenshotWarning();
+                    // Optionnel : rediriger ou bloquer
+                    // document.body.style.display = 'none';
+                }
+            } else {
+                devToolsOpen = false;
+            }
+        }, 1000);
+        
+        // 7. Détection des raccourcis de capture sur macOS
+        document.addEventListener('keydown', function(e) {
+            // Cmd + Shift + 3 (Capture plein écran Mac)
+            // Cmd + Shift + 4 (Capture sélection Mac)
+            // Cmd + Shift + 5 (Outil capture Mac)
+            if (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Cmd + Ctrl + Shift + 3/4 (Capture dans le presse-papier Mac)
+            if (e.metaKey && e.ctrlKey && e.shiftKey && (e.key === '3' || e.key === '4')) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+        });
+        
+        // 8. Empêcher l'enregistrement de la page
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+        });
+        
+        // 9. Protection pour les appareils mobiles (gestes de capture)
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            // Détection des gestes de capture (power + volume down sur Android)
+            // Cette partie est limitée par les contraintes du navigateur
+        });
+        
+        // 10. Ajouter un filigrane dynamique (optionnel)
+        function addWatermark() {
+            // Crée un filigrane semi-transparent
+            const watermark = document.createElement('div');
+            watermark.style.position = 'fixed';
+            watermark.style.bottom = '10px';
+            watermark.style.right = '10px';
+            watermark.style.color = 'rgba(0,0,0,0.1)';
+            watermark.style.fontSize = '10px';
+            watermark.style.zIndex = '9999';
+            watermark.style.pointerEvents = 'none';
+            watermark.innerHTML = '© Espace Élève - ' + new Date().toLocaleDateString();
+            document.body.appendChild(watermark);
+        }
+        
+        // Appeler la fonction de filigrane après connexion
+        // ========== FIN PROTECTION CAPTURES ==========
+        
+        // ========== COMPTEUR DE VISITEURS ==========
+        
+        // Fonction pour initialiser le compteur de visiteurs
+        function initVisitorCounter() {
+            // Vérifier si le compteur existe dans localStorage
+            let visitorCount = localStorage.getItem('totalVisitors');
+            let lastVisitor = localStorage.getItem('lastVisitor');
+            
+            if (visitorCount === null) {
+                visitorCount = 0;
+                localStorage.setItem('totalVisitors', visitorCount);
+            }
+            
+            if (lastVisitor === null) {
+                lastVisitor = {
+                    name: 'Aucun',
+                    date: null
+                };
+                localStorage.setItem('lastVisitor', JSON.stringify(lastVisitor));
+            } else {
+                lastVisitor = JSON.parse(lastVisitor);
+            }
+            
+            // Mettre à jour l'affichage
+            updateVisitorDisplay(parseInt(visitorCount), lastVisitor);
+        }
+        
+        // Fonction pour mettre à jour l'affichage du compteur
+        function updateVisitorDisplay(count, lastVisitor) {
+            const counterElement = document.getElementById('visitorCounter');
+            const lastVisitorElement = document.getElementById('lastVisitorInfo');
+            
+            if (counterElement) {
+                counterElement.textContent = count;
+            }
+            
+            if (lastVisitorElement && lastVisitor && lastVisitor.name !== 'Aucun') {
+                lastVisitorElement.innerHTML = `Dernier visiteur : <strong>${lastVisitor.name}</strong><br>le ${lastVisitor.date}`;
+            } else if (lastVisitorElement) {
+                lastVisitorElement.innerHTML = 'Aucun visiteur pour le moment';
+            }
+        }
+        
+        // Fonction pour enregistrer un nouveau visiteur
+        function registerVisitor(visitorName) {
+            // Récupérer les données actuelles
+            let visitorCount = parseInt(localStorage.getItem('totalVisitors')) || 0;
+            let lastVisitor = localStorage.getItem('lastVisitor');
+            
+            if (lastVisitor) {
+                lastVisitor = JSON.parse(lastVisitor);
+            } else {
+                lastVisitor = { name: 'Aucun', date: null };
+            }
+            
+            // Incrémenter le compteur
+            visitorCount++;
+            
+            // Obtenir la date et l'heure actuelles
+            const now = new Date();
+            const dateString = now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR');
+            
+            // Mettre à jour le dernier visiteur
+            const newLastVisitor = {
+                name: visitorName,
+                date: dateString
+            };
+            
+            // Sauvegarder dans localStorage
+            localStorage.setItem('totalVisitors', visitorCount);
+            localStorage.setItem('lastVisitor', JSON.stringify(newLastVisitor));
+            
+            // Mettre à jour l'affichage
+            updateVisitorDisplay(visitorCount, newLastVisitor);
+            
+            return { count: visitorCount, lastVisitor: newLastVisitor };
+        }
+        
+        // Fonction pour afficher ou cacher les statistiques selon l'utilisateur
+        function toggleVisitorStats(visitorName) {
+            const statsContainer = document.getElementById('visitorStatsContainer');
+            if (statsContainer) {
+                // Afficher uniquement si l'utilisateur est "Ami"
+                if (visitorName === "Ami") {
+                    statsContainer.style.display = 'block';
+                } else {
+                    statsContainer.style.display = 'none';
+                }
+            }
+        }
+        
+        // ========== VARIABLES POUR L'INACTIVITÉ ==========
         let inactivityTimer = null;
         const INACTIVITY_DELAY = 2 * 60 * 1000; // 2 minutes en millisecondes
         
         // ========== FONCTIONS DE GESTION D'INACTIVITÉ ==========
         
-        // Réinitialiser le timer d'inactivité
         function resetInactivityTimer() {
-            // Annuler l'ancien timer
             if (inactivityTimer) {
                 clearTimeout(inactivityTimer);
             }
-            // Redémarrer le timer
             startInactivityTimer();
         }
 
-        // Démarrer le timer d'inactivité
         function startInactivityTimer() {
-            // Annuler tout timer existant
             if (inactivityTimer) {
                 clearTimeout(inactivityTimer);
             }
 
-            // Créer un nouveau timer
             inactivityTimer = setTimeout(function() {
-                // Timeout atteint : bloquer la page
                 bloquerPageParInactivite();
             }, INACTIVITY_DELAY);
         }
 
-        // Bloquer la page à cause de l'inactivité
         function bloquerPageParInactivite() {
-            // Supprimer les données de session
             sessionStorage.removeItem('is-connected');
             sessionStorage.removeItem('user-name');
 
-            // Masquer le contenu principal
             document.getElementById('contenu-page').style.display = 'none';
-
-            // Afficher l'écran de connexion
             const verrouillage = document.getElementById('verrouillage');
             verrouillage.style.display = 'flex';
 
-            // Ajouter un message d'information
             const errorDiv = document.getElementById('errorMessage');
             if (errorDiv) {
                 errorDiv.textContent = 'Session expirée : 2 minutes d\'inactivité. Veuillez vous reconnecter.';
                 errorDiv.style.display = 'block';
                 
-                // Faire disparaître le message après 3 secondes
                 setTimeout(() => {
                     errorDiv.style.display = 'none';
                 }, 3000);
             }
 
-            // Vider les champs
             document.getElementById('fullName').value = '';
             document.getElementById('password').value = '';
 
-            // Réinitialiser le timer
             if (inactivityTimer) {
                 clearTimeout(inactivityTimer);
                 inactivityTimer = null;
             }
         }
 
-        // Arrêter le timer (quand on se déconnecte volontairement)
-        function stopInactivityTimer() {
-            if (inactivityTimer) {
-                clearTimeout(inactivityTimer);
-                inactivityTimer = null;
-            }
-        }
-
-        // Démarrer la surveillance d'inactivité (après connexion)
         function startInactivityMonitoring() {
-            // Annuler l'ancienne surveillance
             if (inactivityTimer) {
                 clearTimeout(inactivityTimer);
             }
-
-            // Démarrer le timer
             startInactivityTimer();
 
-            // Écouter les événements d'activité
             const event = ['mousedown', 'mousemove', 'keypress', 'scroll', 'click', 'touchstart', 'touchend'];
             event.forEach(event => {
                 document.removeEventListener(event, resetInactivityTimer);
@@ -280,102 +586,94 @@
             })
         }
 
-        // Ajouter cette fonction pour nettoyer les données avant la fermeture de la page
         function nettoyerSessionAvantFermeture() {
-            // Supprimer les données de session
             sessionStorage.removeItem('is-connected');
             sessionStorage.removeItem('user-name');
             
-            // Vider les champs si l'écran de connexion est visible
             const fullNameField = document.getElementById('fullName');
             const passwordField = document.getElementById('password');
             if (fullNameField) fullNameField.value = '';
             if (passwordField) passwordField.value = '';
         }
 
-        // Ajouter cet écouteur d'événement pour la fermeture/actualisation de la page
         window.addEventListener('beforeunload', function() {
             nettoyerSessionAvantFermeture();
         });
 
-        // Optionnel : pour fermer l'onglet (plus fiable)
         window.addEventListener('pagehide', function() {
             nettoyerSessionAvantFermeture();
         });
 
-        // Optionnel : pour la visibilité de la page (si l'utilisateur change d'onglet)
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                // Optionnel : vous pouvez aussi nettoyer quand l'utilisateur quitte l'onglet
-                // nettoyerSessionAvantFermeture();
-            }
-        });
-
         // ========== LOGIQUE D'ACCÈS ==========
 
-        // Exemple d'identifiants valides (à modifier selon tes besoins)
         const identifiantsValides = [
             { nom: "5CG4", motDePasse: "+1234+" },
             { nom: "5DG2", motDePasse: "+5678+" },
             { nom: "Ami", motDePasse: "admin123" }
         ];
-        // --- LOGIQUE D'ACCÈS ---
+        
         function seConnecter() {
             const nom = document.getElementById('fullName').value.trim();
             const motDePasse = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMessage');
             const verrouillage = document.getElementById('verrouillage');
-            
         
-            // On utilise .find() pour parcourir la liste
-            // Vérifier les identifiants
             const utilisateurValide = identifiantsValides.find(
                 user => user.nom === nom && user.motDePasse === motDePasse
             );
 
             if (utilisateurValide) {
-                // Sauvegarder le nom de l'élève dans sessionStorage
+                // Vérifier si c'est l'utilisateur "Ami" pour enregistrer les statistiques
+                let visitorStats = null;
+                
+                if (nom === "Ami") {
+                    // Enregistrer le visiteur uniquement pour "Ami"
+                    visitorStats = registerVisitor(nom);
+                }
+                
                 sessionStorage.setItem('user-name', nom);
                 sessionStorage.setItem('is-connected', 'true');
-                // Afficher le contenu principal
+                
                 document.getElementById('contenu-page').style.display = 'block';
-               // Cacher l'écran de verrouillage
                 verrouillage.style.display = 'none';
                 
-                // Afficher le bouton Accueil
                 const boutonAccueil = document.querySelector('.tab-button[onclick*="accueil"]');
                 if (boutonAccueil) {
                     boutonAccueil.style.display = 'inline-flex';
                 }
-                // Afficher le bouton de la Classe 5
+                
                 const boutonClasse5 = document.querySelector('.tab-button[onclick*="classe5"]');
                 if (boutonClasse5) {
                     boutonClasse5.style.display = 'inline-flex';
                 }
 
-                // Modifier le message de bienvenue
                 const titreAccueil = document.getElementById('messageBienvenue');
                 if (titreAccueil) {
                     titreAccueil.innerHTML = 'Bonjour dans la classe de ' + nom + ' ! 👋';
                 }
+                
+                // Afficher ou cacher les statistiques selon l'utilisateur
+                toggleVisitorStats(nom);
+                
+                // Ajouter un filigrane après connexion
+                addWatermark();
 
-                // Petit message de bienvenue
-                alert('Bienvenue mon éleve de ' + nom + ' !');
+                // Message de bienvenue avec ou sans stats
+                if (nom === "Ami" && visitorStats) {
+                    alert(`Bienvenue mon élève de ${nom} !\n\n📊 Statistiques :\n• Vous êtes le ${visitorStats.count}e visiteur\n• Dernier visiteur : ${visitorStats.lastVisitor.name} (${visitorStats.lastVisitor.date})`);
+                } else {
+                    alert(`Bienvenue mon élève de ${nom} !`);
+                }
 
-                // DÉMARRER LA SURVEILLANCE D'INACTIVITÉ (SANS AFFICHAGE)
                 startInactivityMonitoring();
             } else {
-                // Afficher l'erreur (dans le texte rouge prévu dans ta boîte)
                 const erreurCode = document.getElementById('erreur-code');
                 erreurCode.style.display = 'block';
-
-                // On peut aussi utiliser ton autre div d'erreur si tu préfères
                 errorDiv.textContent = 'Nom ou mot de passe incorrect.';
                 errorDiv.style.display = 'block';    
             }
         }
 
-        // Permettre de valider avec la touche Entrée
         document.getElementById('password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 seConnecter();
@@ -388,67 +686,33 @@
         const modele = document.getElementById("modele");
         const imageModele = document.getElementById("imageModele");
 
-
         function ouvrirPleinEcran(index, idOnglet) {
-
-            // Récupérer toutes les images
             photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
         
-            // Vérifier si des images existent
             if (!photosActuelles.length) return;
         
             indexActuel = index;
         
-            // Afficher la modale
             modele.style.display = "flex";
             imageModele.src = photosActuelles[indexActuel].src;
         
-            // =============================
-            // COMPTER LES VISITES
-            // =============================
-        
             try {
-        
-                // Image actuelle
                 const imageActuelle = photosActuelles[indexActuel];
-        
-                // data-id
                 const imageId = imageActuelle.dataset.id;
         
                 if (imageId) {
-        
-                    // Compteur correspondant
                     const compteur = document.getElementById('counter_' + imageId);
         
                     if (compteur) {
-        
-                        // Nombre actuel
                         let nombre = parseInt(compteur.textContent) || 0;
-        
-                        // Incrémenter
                         nombre++;
-        
-                        // Afficher
                         compteur.textContent = nombre;
                     }
                 }
-        
             } catch(error) {
-        
                 console.log("Erreur compteur :", error);
             }
         }
-        
-
-        // function ouvrirPleinEcran(index, idOnglet) {
-        //     // Récupérer toutes les images de la galerie de l'onglet
-        //     photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
-        //     indexActuel = index;
-
-        //     // Afficher la modale
-        //     modele.style.display = "flex";
-        //     imageModele.src = photosActuelles[indexActuel].src;
-        // }
 
         function fermerPleinEcran() {
             modele.style.display = "none";
@@ -466,20 +730,17 @@
             imageModele.src = photosActuelles[indexActuel].src;
         }
 
-        // Navigation au clavier
         document.addEventListener('keydown', (e) => {
             if (modele && modele.style.display === "flex") {
                 if (e.key === "ArrowRight") photoSuivante();
                 if (e.key === "ArrowLeft") photoPrecedente();
                 if (e.key === "Escape") fermerPleinEcran();
             }
-            // Réinitialiser le timer pour toute touche pressée
             if (sessionStorage.getItem('is-connected') === 'true') {
                 resetInactivityTimer();
             }
         });
 
-        // Vérifier si l'utilisateur est déjà connecté (après refresh de page)
         function verifierConnexionExistante() {
             if (sessionStorage.getItem('is-connected') === 'true') {
                 const nom = sessionStorage.getItem('user-name');
@@ -487,12 +748,11 @@
                 document.getElementById('contenu-page').style.display = 'block';
                 document.getElementById('verrouillage').style.display = 'none';
                 
-                // Afficher le bouton Accueil
                 const boutonAccueil = document.querySelector('.tab-button[onclick*="accueil"]');
                 if (boutonAccueil) {
                     boutonAccueil.style.display = 'inline-flex';
                 }
-                // Afficher le bouton Classe 5
+                
                 const boutonClasse5 = document.querySelector('.tab-button[onclick*="classe5"]');
                 if (boutonClasse5) {
                     boutonClasse5.style.display = 'inline-flex';
@@ -502,15 +762,29 @@
                 if (titreAccueil) {
                     titreAccueil.innerHTML = 'Bonjour dans la classe ' + nom + ' ! 👋';
                 }
+                
+                // Afficher ou cacher les statistiques selon l'utilisateur
+                toggleVisitorStats(nom);
+                
+                // Ajouter le filigrane
+                addWatermark();
 
-                // Redémarrer la surveillance d'inactivité
                 startInactivityMonitoring();
             }
         }
 
-        // Appeler cette fonction au chargement de la page
         window.onload = function() {
+            // Initialiser le compteur de visiteurs (mais sans l'afficher)
+            initVisitorCounter();
+            
+            // Cacher les statistiques par défaut
+            const statsContainer = document.getElementById('visitorStatsContainer');
+            if (statsContainer) {
+                statsContainer.style.display = 'none';
+            }
+            
             verifierConnexionExistante();
+            
             // Désactiver le clic droit sur les images
             document.addEventListener('contextmenu', function(e) {
                 if (e.target.tagName === "IMG") {
@@ -519,38 +793,28 @@
             });
         }
 
-        // --- GESTION DES ONGLETS ---
         function ouvrirOnglet(evt, nomOnglet) {
-            // Réinitialiser le timer d'inactivité
             if (sessionStorage.getItem('is-connected') === 'true') {
                 resetInactivityTimer();
             }
 
-            // Récupérer tous les contenus d'onglets
             let tabContents = document.getElementsByClassName("tab-content");
-            // Cacher tous les onglets
             for (let i = 0; i < tabContents.length; i++) {
                 tabContents[i].style.display = "none";
             }
 
-            // Récupérer tous les boutons d'onglets
             let tabButtons = document.getElementsByClassName("tab-button");
-            // Enlever la classe "active" de tous les boutons
             for (let i = 0; i < tabButtons.length; i++) {
                 tabButtons[i].classList.remove("active");
             }
 
-            // Enlever la classe "active" de tous les boutons
             document.getElementById(nomOnglet).style.display = "block";
 
-
-            // Ajouter la classe "active" au bouton cliqué
             if (evt && evt.currentTarget) {
                 evt.currentTarget.classList.add("active");
             }
         }
 
-        // Surcharger les événements sur le document pour détecter l'activité
         if (document) {
             const eventsToMonitor = ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'];
             eventsToMonitor.forEach(event => {
