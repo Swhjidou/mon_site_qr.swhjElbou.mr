@@ -3,24 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Espace Élève - Base de données Cloud</title>
+    <title>Espace Élève - Enregistrement des visiteurs</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ========================================== */
-        /* STYLES CSS - PROTECTION DE L'INTERFACE     */
-        /* ========================================== */
-        
-        /* Empêche la sélection de texte sur toute la page */
+        /* Protection contre la sélection et le glisser-déposer */
         body {
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
-            -webkit-touch-callout: none;  /* Désactive le menu contextuel sur iOS */
-            -webkit-tap-highlight-color: transparent; /* Supprime le surlignage au clic */
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Empêche le glissement des images */
         img {
             pointer-events: auto;
             -webkit-user-drag: none;
@@ -28,7 +23,6 @@
             -webkit-touch-callout: none;
         }
         
-        /* Overlay transparent pour protection supplémentaire */
         .protect-overlay {
             position: fixed;
             top: 0;
@@ -40,7 +34,6 @@
             pointer-events: none;
         }
         
-        /* Message d'avertissement pour les captures d'écran */
         .screenshot-warning {
             position: fixed;
             bottom: 20px;
@@ -59,7 +52,6 @@
             animation: fadeInOut 2s ease;
         }
         
-        /* Animation du message d'avertissement */
         @keyframes fadeInOut {
             0% { opacity: 0; transform: translateY(20px); }
             15% { opacity: 1; transform: translateY(0); }
@@ -67,7 +59,7 @@
             100% { opacity: 0; transform: translateY(-20px); }
         }
         
-        /* Conteneur des statistiques détaillées (visible uniquement pour l'admin) */
+        /* Styles pour les statistiques détaillées */
         .visitor-stats-detailed {
             margin-top: 30px;
             padding: 20px;
@@ -78,7 +70,6 @@
             overflow-y: auto;
         }
         
-        /* Grille d'affichage des cartes statistiques */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -86,7 +77,6 @@
             margin-top: 15px;
         }
         
-        /* Carte individuelle de statistiques */
         .stats-card {
             background: white;
             padding: 15px;
@@ -94,27 +84,30 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        /* Titre des cartes */
         .stats-card h4 {
             color: #1a73e8;
             margin-bottom: 10px;
             font-size: 1rem;
         }
         
-        /* Chiffres des statistiques */
         .stats-card .count {
             font-size: 2rem;
             font-weight: bold;
             color: #333;
         }
         
-        /* Liste des visiteurs récents */
         .recent-visitors {
             margin-top: 20px;
             padding: 15px;
             background: white;
             border-radius: 10px;
             text-align: left;
+        }
+        
+        .recent-visitors h4 {
+            color: #1a73e8;
+            margin-bottom: 10px;
+            text-align: center;
         }
         
         .visitor-list {
@@ -124,7 +117,6 @@
             overflow-y: auto;
         }
         
-        /* Élément individuel de la liste des visiteurs */
         .visitor-list li {
             padding: 10px;
             border-bottom: 1px solid #eee;
@@ -133,6 +125,10 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 5px;
+        }
+        
+        .visitor-list li:last-child {
+            border-bottom: none;
         }
         
         .visitor-name {
@@ -153,7 +149,6 @@
             color: #666;
         }
         
-        /* Badges pour différencier admin et élèves */
         .badge {
             display: inline-block;
             padding: 2px 8px;
@@ -173,8 +168,7 @@
             color: white;
         }
         
-        /* Boutons d'action */
-        .export-btn, .clear-btn {
+        .export-btn {
             background: #1a73e8;
             color: white;
             border: none;
@@ -183,257 +177,67 @@
             cursor: pointer;
             margin-top: 15px;
             font-size: 0.9rem;
-            margin-right: 10px;
+        }
+        
+        .export-btn:hover {
+            background: #1557b0;
         }
         
         .clear-btn {
             background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            margin-left: 10px;
+            font-size: 0.9rem;
         }
         
         .clear-btn:hover {
             background: #cc0000;
         }
-        
-        /* Conteneur principal du contenu */
-        #contenu-page {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #1a73e8;
-            margin-bottom: 30px;
-        }
-        
-        /* Barre d'onglets */
-        .ribbon-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        
-        .ribbon {
-            display: flex;
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        
-        /* Boutons des onglets */
-        .tab-button {
-            padding: 12px 24px;
-            background: transparent;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .tab-button.active {
-            background: #1a73e8;
-            color: white;
-        }
-        
-        /* Contenu des onglets */
-        .tab-content {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .welcome-card {
-            text-align: center;
-            padding: 40px;
-        }
-        
-        /* Galerie d'images */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .image-container {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-        
-        .image-container img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
-        
-        /* Compteur de vues sur les images */
-        .view_counter {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            z-index: 2;
-        }
-        
-        /* Modal pour l'agrandissement des images */
-        .modele {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.98);
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modele-contenu {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-        }
-        
-        .fermer {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .nav-gauche, .nav-droite {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
-            padding: 20px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-        }
-        
-        .nav-gauche { left: 20px; }
-        .nav-droite { right: 20px; }
-        
-        /* Écran de connexion */
-        .login-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .login-box {
-            background: rgba(255,255,255,0.95);
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-        
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-        
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        
-        .error-message {
-            display: none;
-            padding: 10px;
-            margin-top: 15px;
-            background: #fee;
-            color: #c33;
-            border-radius: 10px;
-        }
-        
-        /* Responsive pour mobile */
-        @media (max-width: 768px) {
-            .gallery { grid-template-columns: 1fr; }
-            .tab-button { padding: 8px 16px; font-size: 0.9rem; }
-        }
     </style>
 </head>
 
 <body>
-    <!-- Overlay de protection anti-capture -->
     <div class="protect-overlay"></div>
     <div id="screenshotWarning" class="screenshot-warning">🚫 Capture d'écran bloquée !</div>
     
-    <!-- Contenu principal de l'application (caché jusqu'à connexion) -->
     <div id="contenu-page" style="display: none;">
         <h1>Espace Correction</h1>
 
-        <!-- Barre d'onglets -->
         <div class="ribbon-container">
             <div class="ribbon">
                 <button class="tab-button active" onclick="ouvrirOnglet(event, 'accueil')">
                     <span class="class-number">🏠</span>
                     <span class="class-label">Accueil</span>
                 </button>
+
                 <button class="tab-button" onclick="ouvrirOnglet(event, 'classe5')" style="display: none;">
                     <span class="class-label">Classe 5C/D</span>
                 </button>
             </div>
         </div>
 
-        <!-- Onglet d'accueil -->
         <div id="accueil" class="tab-content" style="display: block;">
             <div class="welcome-card">
-                <h3 id="messageBienvenue">Bonjour dans la classe de 5 C&D ! 👋</h3>
-                <p>Sélectionnez <strong>Classe 5</strong> pour voir les corrections.</p>
-                <ul>
+                <h3 id="messageBienvenue">
+                    Bonjour dans la classe de 5 C&D ! 👋
+                </h3>
+                <p>
+                    Sélectionnez <strong>Classe 5</strong> pour voir les corrections.
+                </p>
+                <ul class="instructions-list">
                     <li>Cliquez sur une classe ci-dessus.</li>
                     <li>Cliquez sur une image pour l'agrandir.</li>
                 </ul>
                 
-                <!-- Bloc des statistiques (visible uniquement pour l'admin "Ami") -->
+                <!-- Bloc des statistiques détaillées (visible uniquement pour "Ami") -->
                 <div id="visitorStatsContainer" class="visitor-stats-detailed" style="display: none;">
-                    <h4 style="color: #1a73e8; margin-bottom: 15px;">📊 Journal complet des visiteurs (Cloud)</h4>
+                    <h4 style="color: #1a73e8; margin-bottom: 15px;">📊 Journal complet des visiteurs</h4>
                     
-                    <!-- Cartes des statistiques globales -->
                     <div class="stats-grid">
                         <div class="stats-card">
                             <h4>👥 Total visites</h4>
@@ -449,18 +253,17 @@
                         </div>
                     </div>
                     
-                    <!-- Statistiques par utilisateur -->
-                    <div class="stats-grid" id="perUserStats"></div>
+                    <div class="stats-grid" id="perUserStats">
+                        <!-- Les statistiques par utilisateur seront ajoutées ici -->
+                    </div>
                     
-                    <!-- Historique complet des visiteurs -->
                     <div class="recent-visitors">
                         <h4>🕐 Historique complet des visiteurs</h4>
                         <ul class="visitor-list" id="allVisitorsList">
-                            <li>Chargement...</li>
+                            <li>Aucun visiteur pour le moment</li>
                         </ul>
                     </div>
                     
-                    <!-- Boutons d'action admin -->
                     <div>
                         <button class="export-btn" onclick="exportVisitorsData()">📥 Exporter les données (JSON)</button>
                         <button class="clear-btn" onclick="clearAllVisitorsData()">🗑️ Effacer tout l'historique</button>
@@ -468,63 +271,72 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Onglet de la classe 5 avec les corrections -->
+    
         <div id="classe5" class="tab-content" style="display: none;">
             <h3>Correction de Series sur fonctions numerique</h3>
             <div class="gallery">
-                <!-- Image 1 -->
                 <div class="image-container">                
                     <img src="static/FN5DCIS.jpg" 
                         onclick="ouvrirPleinEcran(0, 'classe5')" 
                         data-id="classe5_img1"
                         draggable="false">
-                    <div class="view_counter" id="counter_classe5_img1">0</div>
+                    <div class="view_counter" id="counter_classe5_img1">
+                        0
+                    </div>
                 </div>
-                <!-- Image 2 -->
+           
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC1IR26.jpg" 
                         onclick="ouvrirPleinEcran(1, 'classe5')" 
                         data-id="classe5_img2"
                         draggable="false">
-                    <div class="view_counter" id="counter_classe5_img2">0</div>
+                    <div class="view_counter" id="counter_classe5_img2">
+                        0
+                    </div>
                 </div>
-                <!-- Image 3 -->
+
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC2IR26.jpg" 
                         onclick="ouvrirPleinEcran(2, 'classe5')" 
                         data-id="classe5_img3"
                         draggable="false">
-                    <div class="view_counter" id="counter_classe5_img3">0</div>
+                    <div class="view_counter" id="counter_classe5_img3">
+                        0
+                    </div>
                 </div>
-                <!-- Image 4 -->
+
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC3IR26.jpg" 
                         onclick="ouvrirPleinEcran(3, 'classe5')" 
                         data-id="classe5_img4"
                         draggable="false">
-                    <div class="view_counter" id="counter_classe5_img4">0</div>
+                    <div class="view_counter" id="counter_classe5_img4">
+                        0
+                    </div>
                 </div>
-                <!-- Image 5 -->
+
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC4IR26.jpg" 
                         onclick="ouvrirPleinEcran(4, 'classe5')" 
                         data-id="classe5_img5"
                         draggable="false">
-                    <div class="view_counter" id="counter_classe5_img5">0</div>
+                    <div class="view_counter" id="counter_classe5_img5">
+                        0
+                    </div>
                 </div>
-                <!-- Image 6 -->
+
                 <div class="image-container">                
                     <img src="static/CREX1FN5DC5IR26.jpg" 
                         onclick="ouvrirPleinEcran(5, 'classe5')" 
                         data-id="classe5_img6"
                         draggable="false">
-                    <div class="view_counter" id="counter_classe5_img6">0</div>
+                    <div class="view_counter" id="counter_classe5_img6">
+                        0
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal pour l'agrandissement des images -->
         <div id="modele" class="modele" onclick="fermerPleinEcran()">
             <span class="fermer" onclick="fermerPleinEcran()">&times;</span>
             <img id="imageModele" class="modele-contenu" draggable="false">
@@ -533,17 +345,66 @@
         </div>
     </div>
 
-    <!-- Écran de connexion -->
-    <div class="login-container" id="verrouillage">
-        <div class="login-box">
-            <div style="font-size: 50px;">🎓</div>
-            <h2>Espace Élève</h2>
-            <p>Veuillez vous identifier</p>
-            <input type="text" id="fullName" placeholder="Nom de votre classe">
-            <input type="password" id="password" placeholder="Mot de passe">
-            <button onclick="seConnecter()">Se connecter</button>
-            <div id="errorMessage" class="error-message"></div>
+    <div class="login-container" id="verrouillage"
+            style="position:fixed; 
+            top:0; 
+            left:0; 
+            width:100%; 
+            height:100%; 
+            background:#1a73e8; 
+            z-index:9999; display:flex; 
+            justify-content:center; 
+            align-items:center; 
+            color:white; 
+            flex-direction:column; 
+            font-family: 'Segoe UI', sans-serif;">
+        <div style="background: rgba(255,255,255,0.1); 
+            padding: 40px; 
+            border-radius: 25px; 
+            backdrop-filter: blur(10px); 
+            text-align: center; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            width: 80%; 
+            max-width: 400px;">
+
+            <div style="font-size: 50px; 
+                margin-bottom: 10px;">🎓</div>
+            <h2 style="margin-bottom: 5px;">Espace Élève</h2>
+            <p style="margin-bottom: 25px; 
+                opacity: 0.9;">Veuillez vous identifier</p>
+            
+            <input type="text" id="fullName" placeholder="Nom de Votre classe" 
+                style="width: 100%; 
+                padding:12px; 
+                border-radius:15px; 
+                border:none; 
+                text-align:center; 
+                font-size:1rem; 
+                outline:none; 
+                margin-bottom: 15px;">
+            
+            <input type="password" id="password" placeholder="Mot de passe" 
+                style="width: 100%; 
+                padding:12px; 
+                border-radius:15px; 
+                border:none; 
+                text-align:center; 
+                font-size:1rem; 
+                outline:none; 
+                margin-bottom: 20px;">
+            
+            <button onclick="seConnecter()" style="width: 100%; padding:12px; border-radius:15px; 
+                border:none; background:white; color:#1a73e8; font-weight:bold; cursor:pointer; 
+                font-size: 1rem; transition: 0.3s;">
+                Se connecter
+            </button>
+            
+            <p id="erreur-code" style="color:#ffcccb; margin-top:15px; display:none; 
+                font-size: 0.9rem;">Nom ou mot de passe incorrect.</p>
         </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
     </div>
 
     <script>
@@ -552,7 +413,7 @@
         // ==========================================
         // ⚠️ REMPLACEZ CETTE URL PAR CELLE DE VOTRE GOOGLE APPS SCRIPT APRÈS DÉPLOIEMENT
         // Cette URL permet la communication entre votre site et Google Sheets
-        const SCRIPT_URL = "https://script.google.com/macros/s/VOTRE_ID_ICI/exec";
+        constSCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCKh52ULwvRdly_PGkyZHtJFCV_abCXmlqGaELiTPdHsgbNeiY6YAi5_gIdj-70cWB/exec"
 
         // ==========================================
         // FONCTION: getDeviceInfo()
