@@ -2,351 +2,188 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Espace Élève - Protection Anti-Capture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>Espace Élève</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* Styles de base */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        /* Protection contre la sélection et le glisser-déposer */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-        
-        /* Protection FLAG (ajout d'un élément qui rend la capture moins lisible) */
-        .anti-screenshot-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                45deg,
-                rgba(255, 255, 255, 0.03) 0px,
-                rgba(255, 255, 255, 0.03) 20px,
-                rgba(0, 0, 0, 0.03) 20px,
-                rgba(0, 0, 0, 0.03) 40px
-            );
-            pointer-events: none;
-            z-index: 9999;
-        }
-        
-        /* Message d'avertissement flottant */
-        .screenshot-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: #ff4444;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 14px;
-            z-index: 10001;
-            font-family: monospace;
-            display: none;
-            white-space: nowrap;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,68,68,0.5);
-        }
-        
-        /* Empêcher la sélection */
-        body {
-            user-select: none;
+            user-select: none; /* Empêche la sélection de texte */
             -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none; /* Désactive le menu contextuel sur iOS */
+            -webkit-tap-highlight-color: transparent; /* Supprime le surlignage au tap */
         }
         
         img {
-            -webkit-user-drag: none;
+            pointer-events: auto; /* Garde le clic pour l'agrandissement */
+            -webkit-user-drag: none; /* Empêche le glissement des images */
             user-drag: none;
-            pointer-events: auto;
+            -webkit-touch-callout: none; /* Désactive le menu "Enregistrer l'image" sur iOS */
         }
         
-        /* Contenu principal */
-        #contenu-page {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #1a73e8;
-            margin-bottom: 30px;
-        }
-        
-        .ribbon-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        
-        .ribbon {
-            display: flex;
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        
-        .tab-button {
-            padding: 12px 24px;
+        /* Protection visuelle pour les captures */
+        .protect-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: transparent;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .tab-button:hover {
-            background: #f0f0f0;
-        }
-        
-        .tab-button.active {
-            background: #1a73e8;
-            color: white;
-        }
-        
-        .tab-content {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .welcome-card {
-            text-align: center;
-            padding: 40px;
-        }
-        
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .image-container {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-        
-        .image-container img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
-        
-        .view_counter {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-        
-        /* Modal */
-        .modele {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modele-contenu {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-        }
-        
-        .fermer {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .nav-gauche, .nav-droite {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
-            padding: 20px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-        }
-        
-        .nav-gauche { left: 20px; }
-        .nav-droite { right: 20px; }
-        
-        /* Login */
-        .login-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .login-box {
-            background: rgba(255,255,255,0.95);
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-        
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-        
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        
-        .error-message {
-            display: none;
-            padding: 10px;
-            margin-top: 15px;
-            background: #fee;
-            color: #c33;
-            border-radius: 10px;
-        }
-        
-        /* Watermark animé */
-        .watermark {
-            position: fixed;
-            bottom: 5px;
-            left: 5px;
-            color: rgba(0,0,0,0.08);
-            font-size: 8px;
             z-index: 9998;
             pointer-events: none;
-            font-family: monospace;
         }
         
-        @media (max-width: 768px) {
-            .gallery { grid-template-columns: 1fr; }
-            .tab-button { padding: 8px 16px; font-size: 0.9rem; }
+        /* Message d'avertissement pour les captures */
+        .screenshot-warning {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            color: #ff4444;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 10000;
+            font-family: monospace;
+            display: none;
+            pointer-events: none;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        /* Protection pour empêcher le zoom sur mobile (optionnel) */
+        .no-zoom {
+            touch-action: pan-x pan-y; /* Empêche le double-tap zoom */
         }
     </style>
 </head>
 
 <body>
-    <!-- Overlay anti-capture (crée un effet de moiré sur les captures) -->
-    <div class="anti-screenshot-overlay"></div>
-    <div id="screenshotToast" class="screenshot-toast">🚫 CAPTURE D'ÉCRAN DÉTECTÉE 🚫</div>
+    <!-- Overlay de protection -->
+    <div class="protect-overlay"></div>
+    <div id="screenshotWarning" class="screenshot-warning">🚫 Capture d'écran bloquée !</div>
     
     <div id="contenu-page" style="display: none;">
         <h1>Espace Correction</h1>
-        
+
         <div class="ribbon-container">
             <div class="ribbon">
+                <!-- Button d'accueil -->
                 <button class="tab-button active" onclick="ouvrirOnglet(event, 'accueil')">
-                    <span>🏠</span> Accueil
+                    <span class="class-number">🏠</span>
+                    <span class="class-label">Accueil</span>
                 </button>
+
+                <!-- Button de classe 5 -->
                 <button class="tab-button" onclick="ouvrirOnglet(event, 'classe5')" style="display: none;">
-                    Classe 5C/D
+                    <span class="class-label">Classe 5C/D</span>
                 </button>
             </div>
         </div>
-        
+
         <div id="accueil" class="tab-content" style="display: block;">
             <div class="welcome-card">
-                <h3 id="messageBienvenue">Bonjour dans la classe de 5 C&D ! 👋</h3>
-                <p>Sélectionnez <strong>Classe 5</strong> pour voir les corrections.</p>
-                <ul>
+                <h3 id="messageBienvenue">
+                    Bonjour dans la classe de 5 C&D ! 👋
+                </h3>
+                <p>
+                    Sélectionnez <strong>Classe 5</strong> pour voir les corrections.
+                </p>
+                <ul class="instructions-list">
                     <li>Cliquez sur une classe ci-dessus.</li>
                     <li>Cliquez sur une image pour l'agrandir.</li>
                 </ul>
                 
+                <!-- Ajout du compteur de visiteurs (caché par défaut) -->
                 <div id="visitorStatsContainer" class="visitor-stats" style="margin-top: 30px; padding: 20px; background: #f0f0f0; border-radius: 15px; text-align: center; display: none;">
-                    <h4>📊 Statistiques de visite</h4>
-                    <div style="font-size: 2rem; font-weight: bold;" id="visitorCounter">0</div>
-                    <div>visiteurs au total</div>
-                    <div id="lastVisitorInfo">Aucun visiteur</div>
+                    <h4 style="color: #1a73e8; margin-bottom: 15px;">📊 Statistiques de visite</h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: #333;" id="visitorCounter">
+                        0
+                    </div>
+                    <div style="margin-top: 10px; color: #666;">visiteurs au total</div>
+                    <div style="margin-top: 15px; font-size: 0.9rem; color: #888;" id="lastVisitorInfo">
+                        Aucun visiteur pour le moment
+                    </div>
                 </div>
             </div>
         </div>
-        
+    
         <div id="classe5" class="tab-content" style="display: none;">
-            <h3>Correction de Série sur fonctions numériques</h3>
+            <h3>Correction de Series sur fonctions numerique</h3>
             <div class="gallery">
-                <div class="image-container">
-                    <img src="static/FN5DCIS.jpg" onclick="ouvrirPleinEcran(0, 'classe5')" data-id="classe5_img1" draggable="false">
-                    <div class="view_counter" id="counter_classe5_img1">0</div>
+                <div class="image-container">                
+                    <img src="static/FN5DCIS.jpg" 
+                        onclick="ouvrirPleinEcran(0, 'classe5')" 
+                        data-id="classe5_img1"
+                        draggable="false">
+                    <div class="view_counter" id="counter_classe5_img1">
+                        0
+                    </div>
                 </div>
-                <div class="image-container">
-                    <img src="static/CREX1FN5DC1IR26.jpg" onclick="ouvrirPleinEcran(1, 'classe5')" data-id="classe5_img2" draggable="false">
-                    <div class="view_counter" id="counter_classe5_img2">0</div>
+           
+                <div class="image-container">                
+                    <img src="static/CREX1FN5DC1IR26.jpg" 
+                        onclick="ouvrirPleinEcran(1, 'classe5')" 
+                        data-id="classe5_img2"
+                        draggable="false">
+                    <div class="view_counter" id="counter_classe5_img2">
+                        0
+                    </div>
                 </div>
-                <div class="image-container">
-                    <img src="static/CREX1FN5DC2IR26.jpg" onclick="ouvrirPleinEcran(2, 'classe5')" data-id="classe5_img3" draggable="false">
-                    <div class="view_counter" id="counter_classe5_img3">0</div>
+
+                <div class="image-container">                
+                    <img src="static/CREX1FN5DC2IR26.jpg" 
+                        onclick="ouvrirPleinEcran(2, 'classe5')" 
+                        data-id="classe5_img3"
+                        draggable="false">
+                    <div class="view_counter" id="counter_classe5_img3">
+                        0
+                    </div>
                 </div>
-                <div class="image-container">
-                    <img src="static/CREX1FN5DC3IR26.jpg" onclick="ouvrirPleinEcran(3, 'classe5')" data-id="classe5_img4" draggable="false">
-                    <div class="view_counter" id="counter_classe5_img4">0</div>
+
+                <div class="image-container">                
+                    <img src="static/CREX1FN5DC3IR26.jpg" 
+                        onclick="ouvrirPleinEcran(3, 'classe5')" 
+                        data-id="classe5_img4"
+                        draggable="false">
+                    <div class="view_counter" id="counter_classe5_img4">
+                        0
+                    </div>
                 </div>
-                <div class="image-container">
-                    <img src="static/CREX1FN5DC4IR26.jpg" onclick="ouvrirPleinEcran(4, 'classe5')" data-id="classe5_img5" draggable="false">
-                    <div class="view_counter" id="counter_classe5_img5">0</div>
+
+                <div class="image-container">                
+                    <img src="static/CREX1FN5DC4IR26.jpg" 
+                        onclick="ouvrirPleinEcran(4, 'classe5')" 
+                        data-id="classe5_img5"
+                        draggable="false">
+                    <div class="view_counter" id="counter_classe5_img5">
+                        0
+                    </div>
                 </div>
-                <div class="image-container">
-                    <img src="static/CREX1FN5DC5IR26.jpg" onclick="ouvrirPleinEcran(5, 'classe5')" data-id="classe5_img6" draggable="false">
-                    <div class="view_counter" id="counter_classe5_img6">0</div>
+
+                <div class="image-container">                
+                    <img src="static/CREX1FN5DC5IR26.jpg" 
+                        onclick="ouvrirPleinEcran(5, 'classe5')" 
+                        data-id="classe5_img6"
+                        draggable="false">
+                    <div class="view_counter" id="counter_classe5_img6">
+                        0
+                    </div>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Fenêtre modale pour agrandir les photos -->
         <div id="modele" class="modele" onclick="fermerPleinEcran()">
             <span class="fermer" onclick="fermerPleinEcran()">&times;</span>
             <img id="imageModele" class="modele-contenu" draggable="false">
@@ -354,233 +191,610 @@
             <div class="nav-gauche" onclick="event.stopPropagation(); photoPrecedente()">&#10094;</div>
         </div>
     </div>
-    
-    <div class="login-container" id="verrouillage">
-        <div class="login-box">
-            <div style="font-size: 50px;">🎓</div>
-            <h2>Espace Élève</h2>
-            <p>Veuillez vous identifier</p>
-            <input type="text" id="fullName" placeholder="Nom de votre classe">
-            <input type="password" id="password" placeholder="Mot de passe">
-            <button onclick="seConnecter()">Se connecter</button>
-            <div id="errorMessage" class="error-message"></div>
+
+    <div class="login-container" id="verrouillage"
+            style="position:fixed; 
+            top:0; 
+            left:0; 
+            width:100%; 
+            height:100%; 
+            background:#1a73e8; 
+            z-index:9999; display:flex; 
+            justify-content:center; 
+            align-items:center; 
+            color:white; 
+            flex-direction:column; 
+            font-family: 'Segoe UI', sans-serif;">
+        <div style="background: rgba(255,255,255,0.1); 
+            padding: 40px; 
+            border-radius: 25px; 
+            backdrop-filter: blur(10px); 
+            text-align: center; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            width: 80%; 
+            max-width: 400px;">
+
+            <div style="font-size: 50px; 
+                margin-bottom: 10px;">🎓</div>
+            <h2 style="margin-bottom: 5px;">Espace Élève</h2>
+            <p style="margin-bottom: 25px; 
+                opacity: 0.9;">Veuillez vous identifier</p>
+            
+            <input type="text" id="fullName" placeholder="Nom de Votre classe" 
+                style="width: 100%; 
+                padding:12px; 
+                border-radius:15px; 
+                border:none; 
+                text-align:center; 
+                font-size:1rem; 
+                outline:none; 
+                margin-bottom: 15px;">
+            
+            <input type="password" id="password" placeholder="Mot de passe" 
+                style="width: 100%; 
+                padding:12px; 
+                border-radius:15px; 
+                border:none; 
+                text-align:center; 
+                font-size:1rem; 
+                outline:none; 
+                margin-bottom: 20px;">
+            
+            <button onclick="seConnecter()" style="width: 100%; padding:12px; border-radius:15px; 
+                border:none; background:white; color:#1a73e8; font-weight:bold; cursor:pointer; 
+                font-size: 1rem; transition: 0.3s;">
+                Se connecter
+            </button>
+            
+            <p id="erreur-code" style="color:#ffcccb; margin-top:15px; display:none; 
+                font-size: 0.9rem;">Nom ou mot de passe incorrect.</p>
         </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
     </div>
-    
-    <div class="watermark" id="watermark"></div>
-    
+
     <script>
-        // Détection Android
-        const isAndroid = /android/i.test(navigator.userAgent);
-        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        // ========== DÉTECTION DU SYSTÈME D'EXPLOITATION ==========
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isAndroid = /android/.test(userAgent);
+        const isIOS = /iphone|ipad|ipod/.test(userAgent);
+        const isMobile = isAndroid || isIOS;
         
-        // ========== PROTECTION ANTI-CAPTURE SPÉCIALE ANDROID ==========
+        // ========== PROTECTION CONTRE LES CAPTURES D'ÉCRAN (Mobile + Desktop) ==========
         
-        let screenshotDetected = false;
-        
-        function showToast(message) {
-            const toast = document.getElementById('screenshotToast');
-            toast.textContent = message || '🚫 CAPTURE D\'ÉCRAN DÉTECTÉE 🚫';
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-        
-        // 1. Détection via Visibility API (changement d'application)
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && !screenshotDetected) {
-                screenshotDetected = true;
-                showToast('⚠️ Changement d\'application détecté !');
-                setTimeout(() => { screenshotDetected = false; }, 1000);
-            }
-        });
-        
-        // 2. Détection via les touches (Volume + Power)
-        let lastVolumeTime = 0;
-        document.addEventListener('keydown', function(e) {
-            // Détection des touches Volume sur Android
-            if (e.key === 'VolumeDown' || e.key === 'VolumeUp' || e.keyCode === 175 || e.keyCode === 174) {
-                const now = Date.now();
-                if (now - lastVolumeTime < 500) {
-                    // Deux touches volume rapides = possible capture
-                    showToast('📸 Capture d\'écran détectée !');
-                }
-                lastVolumeTime = now;
-            }
-            
-            // Blocage des touches de capture connues
-            if (e.key === 'PrintScreen' || e.keyCode === 44) {
-                e.preventDefault();
-                showToast('📸 Capture d\'écran bloquée !');
-                return false;
-            }
-            
-            // Blocage F12, Ctrl+Shift+I, etc.
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
-                e.preventDefault();
-                return false;
-            }
-        });
-        
-        // 3. Détection via la perte de focus (pour les applis de capture)
-        window.addEventListener('blur', function() {
-            if (!screenshotDetected) {
-                screenshotDetected = true;
+        // Fonction pour afficher un avertissement
+        function showScreenshotWarning() {
+            const warning = document.getElementById('screenshotWarning');
+            if (warning) {
+                warning.style.display = 'block';
                 setTimeout(() => {
-                    showToast('⚠️ Capture d\'écran possible !');
-                }, 200);
-                setTimeout(() => { screenshotDetected = false; }, 1000);
+                    warning.style.display = 'none';
+                }, 2000);
             }
-        });
-        
-        // 4. Injection d'un flag anti-capture dans les images (rend les captures moins lisibles)
-        function addAntiScreenshotEffect() {
-            // Ajoute un effet de moiré qui n'affecte pas l'affichage normal mais rend les captures moins nettes
-            const overlay = document.createElement('div');
-            overlay.style.position = 'fixed';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.pointerEvents = 'none';
-            overlay.style.zIndex = '99999';
-            overlay.style.background = 'repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 2px, transparent 2px, transparent 8px)';
-            overlay.style.mixBlendMode = 'difference';
-            document.body.appendChild(overlay);
         }
         
-        // 5. Détection spécifique pour Android (via l'API Screen Orientation)
+        // ========== PROTECTIONS ANDROID SPÉCIFIQUES ==========
         if (isAndroid) {
-            let orientationChanged = false;
-            screen.orientation.addEventListener('change', function() {
-                if (!orientationChanged) {
-                    orientationChanged = true;
+            // 1. Détection des combinaisons de touches Android
+            document.addEventListener('keydown', function(e) {
+                // Volume Down + Power (Android capture)
+                // Malheureusement, impossible de détecter directement, mais on peut surveiller
+                
+                // Détection des touches de volume (souvent utilisées pour les captures)
+                if (e.key === 'VolumeDown' || e.key === 'VolumeUp' || e.keyCode === 175 || e.keyCode === 174) {
+                    // Légère suspicion
                     setTimeout(() => {
-                        showToast('📱 Changement d\'orientation détecté');
-                        orientationChanged = false;
+                        checkForScreenshotOnAndroid();
                     }, 500);
                 }
             });
+            
+            // 2. Surveillance de la visibilité de l'application (détection de capture)
+            let androidScreenshotCheck = null;
+            function checkForScreenshotOnAndroid() {
+                // Vérifie si l'application a perdu le focus (signe possible de capture)
+                if (document.hidden) {
+                    showScreenshotWarning();
+                }
+            }
+            
+            // 3. Empêcher l'ouverture du menu contextuel sur Android
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // 4. Détection des gestes de capture sur Android (trois doigts, etc.)
+            let touchCount = 0;
+            document.addEventListener('touchstart', function(e) {
+                touchCount = e.touches.length;
+                // Capture à trois doigts possible sur certains Android
+                if (touchCount >= 3) {
+                    setTimeout(() => {
+                        showScreenshotWarning();
+                    }, 100);
+                }
+            });
         }
         
-        // 6. Empêcher le long-press sur les images (menu "Enregistrer l'image")
+        // ========== PROTECTIONS iOS SPÉCIFIQUES ==========
+        if (isIOS) {
+            // 1. Empêcher le menu contextuel sur les images iOS (Enregistrer l'image)
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('touchstart', function(e) {
+                    // Empêche le menu contextuel long-press
+                    e.preventDefault();
+                });
+                img.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+            });
+            
+            // 2. Détection des combinaisons iOS (Power + Volume Up)
+            let powerPressCount = 0;
+            let volumePressCount = 0;
+            
+            document.addEventListener('keydown', function(e) {
+                // iOS n'envoie pas facilement ces événements, alternative via l'API Battery?
+                // Surveillance de la perte de focus
+                if (document.hidden) {
+                    setTimeout(() => {
+                        showScreenshotWarning();
+                    }, 100);
+                }
+            });
+            
+            // 3. Détection du mode économie d'énergie (peut indiquer une capture)
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(function(battery) {
+                    battery.addEventListener('chargingchange', function() {
+                        // Changement de charge = possible capture
+                        setTimeout(() => {
+                            if (document.hidden) {
+                                showScreenshotWarning();
+                            }
+                        }, 500);
+                    });
+                });
+            }
+            
+            // 4. Empêcher le partage sur iOS (share sheet)
+            document.addEventListener('touchstart', function(e) {
+                let target = e.target;
+                if (target.tagName === 'IMG' && e.touches.length === 1) {
+                    let timer = setTimeout(function() {
+                        // Long press détecté
+                        e.preventDefault();
+                        showScreenshotWarning();
+                    }, 500);
+                    
+                    document.addEventListener('touchend', function() {
+                        clearTimeout(timer);
+                    }, { once: true });
+                }
+            });
+        }
+        
+        // ========== PROTECTIONS GÉNÉRALES (Desktop + Mobile) ==========
+        
+        // 1. Détection des touches de capture (Desktop)
+        document.addEventListener('keydown', function(e) {
+            // Touche "Impr Ecran" (Print Screen)
+            if (e.key === 'PrintScreen' || e.key === 'PrintScreen' || e.keyCode === 44) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Windows + Impr Ecran
+            if (e.key === 'PrintScreen' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Alt + Impr Ecran
+            if (e.key === 'PrintScreen' && e.altKey) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + Shift + S (certains outils de capture)
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + S (sauvegarde)
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // F12 (outils développeur)
+            if (e.key === 'F12') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + Shift + I (outils développeur)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Ctrl + U (code source)
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+        });
+        
+        // 2. Détection des combinaisons de touches
+        let ctrlPressed = false;
+        let shiftPressed = false;
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Control') ctrlPressed = true;
+            if (e.key === 'Shift') shiftPressed = true;
+            
+            // Détection Windows + Shift + S (Outil Capture Windows 10/11)
+            if (ctrlPressed && shiftPressed && e.key === 'S') {
+                e.preventDefault();
+                showScreenshotWarning();
+            }
+        });
+        
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'Control') ctrlPressed = false;
+            if (e.key === 'Shift') shiftPressed = false;
+        });
+        
+        // 3. Protection contre le clic droit
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // 4. Protection contre le glisser-déposer des images
         document.querySelectorAll('img').forEach(img => {
-            img.addEventListener('contextmenu', (e) => e.preventDefault());
-            img.addEventListener('touchstart', (e) => {
-                let timer;
-                e.target.addEventListener('touchmove', () => clearTimeout(timer));
-                e.target.addEventListener('touchend', () => clearTimeout(timer));
+            img.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+                return false;
             });
         });
         
-        // 7. Filigrane dynamique avec timestamp
-        function updateWatermark() {
-            const watermark = document.getElementById('watermark');
-            const now = new Date();
-            const session = sessionStorage.getItem('user-name') || 'visiteur';
-            watermark.innerHTML = `🔒 ${session} | ${now.toLocaleDateString()} ${now.toLocaleTimeString()} | Session sécurisée 🔒`;
-        }
-        setInterval(updateWatermark, 1000);
+        // 5. Protection contre la copie d'images via l'API Clipboard
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            showScreenshotWarning();
+            return false;
+        });
         
-        // 8. Détection des outils de capture tierces (via l'API Performance)
-        if (window.performance && performance.getEntriesByType) {
+        // 6. Détection des outils développeur ouverts
+        let devToolsOpen = false;
+        setInterval(() => {
+            const threshold = 160;
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthThreshold || heightThreshold) {
+                if (!devToolsOpen) {
+                    devToolsOpen = true;
+                    showScreenshotWarning();
+                }
+            } else {
+                devToolsOpen = false;
+            }
+        }, 1000);
+        
+        // 7. Détection des raccourcis de capture sur macOS
+        document.addEventListener('keydown', function(e) {
+            // Cmd + Shift + 3 (Capture plein écran Mac)
+            // Cmd + Shift + 4 (Capture sélection Mac)
+            // Cmd + Shift + 5 (Outil capture Mac)
+            if (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+            
+            // Cmd + Ctrl + Shift + 3/4 (Capture dans le presse-papier Mac)
+            if (e.metaKey && e.ctrlKey && e.shiftKey && (e.key === '3' || e.key === '4')) {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+        });
+        
+        // 8. Empêcher l'enregistrement de la page
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                showScreenshotWarning();
+                return false;
+            }
+        });
+        
+        // 9. API Visibility API - détection de perte de focus
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Peut indiquer une capture d'écran ou un changement d'application
+                setTimeout(() => {
+                    showScreenshotWarning();
+                }, 500);
+            }
+        });
+        
+        // 10. Détection de la touche "Power" (mobile)
+        // Utilisation de l'API Battery Level comme indicateur
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(function(battery) {
+                let lastLevel = battery.level;
+                battery.addEventListener('levelchange', function() {
+                    // Changement soudain de batterie = possible capture (Power button)
+                    if (Math.abs(battery.level - lastLevel) > 0.05) {
+                        setTimeout(() => {
+                            if (document.hidden) {
+                                showScreenshotWarning();
+                            }
+                        }, 300);
+                    }
+                    lastLevel = battery.level;
+                });
+            });
+        }
+        
+        // 11. Protection contre l'enregistrement d'écran (Screen Capture API)
+        if ('getDisplayMedia' in navigator) {
+            // Tente de détecter le partage d'écran
             setInterval(() => {
-                const entries = performance.getEntriesByType('resource');
-                // Vérification basique d'activité suspecte
+                if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+                    // La présence de cette API ne signifie pas forcément qu'un enregistrement est actif
+                    // On peut simplement ajouter une surveillance
+                }
             }, 5000);
         }
         
-        // 9. Ajouter un message invisible dans la console
-        console.log('%c🔒 ESPACE SÉCURISÉ - Toute capture d\'écran est interdite et sera détectée 🔒', 'color: red; font-size: 16px; font-weight: bold;');
+        // 12. Empêcher le zoom sur les images (iOS)
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault(); // Empêche le pincer-zoom
+                }
+            });
+        });
         
-        // 10. Activer les protections
-        addAntiScreenshotEffect();
+        // 13. Filigrane dynamique avec timestamp
+        function addWatermark() {
+            // Supprimer l'ancien filigrane s'il existe
+            const oldWatermark = document.getElementById('dynamicWatermark');
+            if (oldWatermark) oldWatermark.remove();
+            
+            // Créer un nouveau filigrane
+            const watermark = document.createElement('div');
+            watermark.id = 'dynamicWatermark';
+            watermark.style.position = 'fixed';
+            watermark.style.bottom = '10px';
+            watermark.style.right = '10px';
+            watermark.style.color = 'rgba(0,0,0,0.15)';
+            watermark.style.fontSize = '10px';
+            watermark.style.zIndex = '9999';
+            watermark.style.pointerEvents = 'none';
+            watermark.style.fontFamily = 'monospace';
+            watermark.style.background = 'transparent';
+            
+            // Ajouter des informations uniques
+            const now = new Date();
+            watermark.innerHTML = `© Espace Élève | ${now.toLocaleDateString()} ${now.toLocaleTimeString()} | ${Math.random().toString(36).substr(2, 6)}`;
+            document.body.appendChild(watermark);
+            
+            // Mettre à jour le filigrane toutes les minutes
+            setInterval(() => {
+                const newNow = new Date();
+                watermark.innerHTML = `© Espace Élève | ${newNow.toLocaleDateString()} ${newNow.toLocaleTimeString()} | ${Math.random().toString(36).substr(2, 6)}`;
+            }, 60000);
+        }
         
-        // ========== FIN PROTECTIONS ==========
+        // 14. Détection des applications de capture tierces (via l'API Screen Details - limitée)
+        if ('screen' in window && screen.orientation) {
+            screen.orientation.addEventListener('change', function() {
+                // Changement d'orientation = possible capture
+                setTimeout(() => {
+                    showScreenshotWarning();
+                }, 500);
+            });
+        }
+        
+        // 15. Message d'alerte pour mobile
+        if (isMobile) {
+            console.log("🔒 Protection anti-capture activée sur mobile");
+        }
+        
+        // ========== FIN PROTECTION CAPTURES ==========
         
         // ========== COMPTEUR DE VISITEURS ==========
+        
+        // Fonction pour initialiser le compteur de visiteurs
         function initVisitorCounter() {
+            // Vérifier si le compteur existe dans localStorage
             let visitorCount = localStorage.getItem('totalVisitors');
             let lastVisitor = localStorage.getItem('lastVisitor');
+            
             if (visitorCount === null) {
                 visitorCount = 0;
                 localStorage.setItem('totalVisitors', visitorCount);
             }
+            
             if (lastVisitor === null) {
-                lastVisitor = { name: 'Aucun', date: null };
+                lastVisitor = {
+                    name: 'Aucun',
+                    date: null
+                };
                 localStorage.setItem('lastVisitor', JSON.stringify(lastVisitor));
             } else {
                 lastVisitor = JSON.parse(lastVisitor);
             }
+            
+            // Mettre à jour l'affichage
             updateVisitorDisplay(parseInt(visitorCount), lastVisitor);
         }
         
+        // Fonction pour mettre à jour l'affichage du compteur
         function updateVisitorDisplay(count, lastVisitor) {
             const counterElement = document.getElementById('visitorCounter');
             const lastVisitorElement = document.getElementById('lastVisitorInfo');
-            if (counterElement) counterElement.textContent = count;
+            
+            if (counterElement) {
+                counterElement.textContent = count;
+            }
+            
             if (lastVisitorElement && lastVisitor && lastVisitor.name !== 'Aucun') {
                 lastVisitorElement.innerHTML = `Dernier visiteur : <strong>${lastVisitor.name}</strong><br>le ${lastVisitor.date}`;
+            } else if (lastVisitorElement) {
+                lastVisitorElement.innerHTML = 'Aucun visiteur pour le moment';
             }
         }
         
+        // Fonction pour enregistrer un nouveau visiteur
         function registerVisitor(visitorName) {
+            // Récupérer les données actuelles
             let visitorCount = parseInt(localStorage.getItem('totalVisitors')) || 0;
             let lastVisitor = localStorage.getItem('lastVisitor');
-            lastVisitor = lastVisitor ? JSON.parse(lastVisitor) : { name: 'Aucun', date: null };
+            
+            if (lastVisitor) {
+                lastVisitor = JSON.parse(lastVisitor);
+            } else {
+                lastVisitor = { name: 'Aucun', date: null };
+            }
+            
+            // Incrémenter le compteur
             visitorCount++;
+            
+            // Obtenir la date et l'heure actuelles
             const now = new Date();
             const dateString = now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR');
-            const newLastVisitor = { name: visitorName, date: dateString };
+            
+            // Mettre à jour le dernier visiteur
+            const newLastVisitor = {
+                name: visitorName,
+                date: dateString
+            };
+            
+            // Sauvegarder dans localStorage
             localStorage.setItem('totalVisitors', visitorCount);
             localStorage.setItem('lastVisitor', JSON.stringify(newLastVisitor));
+            
+            // Mettre à jour l'affichage
             updateVisitorDisplay(visitorCount, newLastVisitor);
+            
             return { count: visitorCount, lastVisitor: newLastVisitor };
         }
         
+        // Fonction pour afficher ou cacher les statistiques selon l'utilisateur
         function toggleVisitorStats(visitorName) {
             const statsContainer = document.getElementById('visitorStatsContainer');
             if (statsContainer) {
-                statsContainer.style.display = visitorName === "Ami" ? 'block' : 'none';
+                // Afficher uniquement si l'utilisateur est "Ami"
+                if (visitorName === "Ami") {
+                    statsContainer.style.display = 'block';
+                } else {
+                    statsContainer.style.display = 'none';
+                }
             }
         }
         
-        // ========== INACTIVITÉ ==========
+        // ========== VARIABLES POUR L'INACTIVITÉ ==========
         let inactivityTimer = null;
-        const INACTIVITY_DELAY = 2 * 60 * 1000;
+        const INACTIVITY_DELAY = 2 * 60 * 1000; // 2 minutes en millisecondes
+        
+        // ========== FONCTIONS DE GESTION D'INACTIVITÉ ==========
         
         function resetInactivityTimer() {
-            if (inactivityTimer) clearTimeout(inactivityTimer);
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
             startInactivityTimer();
         }
-        
+
         function startInactivityTimer() {
-            if (inactivityTimer) clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(() => bloquerPageParInactivite(), INACTIVITY_DELAY);
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
+
+            inactivityTimer = setTimeout(function() {
+                bloquerPageParInactivite();
+            }, INACTIVITY_DELAY);
         }
-        
+
         function bloquerPageParInactivite() {
             sessionStorage.removeItem('is-connected');
             sessionStorage.removeItem('user-name');
+
             document.getElementById('contenu-page').style.display = 'none';
-            document.getElementById('verrouillage').style.display = 'flex';
+            const verrouillage = document.getElementById('verrouillage');
+            verrouillage.style.display = 'flex';
+
+            const errorDiv = document.getElementById('errorMessage');
+            if (errorDiv) {
+                errorDiv.textContent = 'Session expirée : 2 minutes d\'inactivité. Veuillez vous reconnecter.';
+                errorDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+
             document.getElementById('fullName').value = '';
             document.getElementById('password').value = '';
-            if (inactivityTimer) clearTimeout(inactivityTimer);
+
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = null;
+            }
         }
-        
+
         function startInactivityMonitoring() {
-            if (inactivityTimer) clearTimeout(inactivityTimer);
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
             startInactivityTimer();
-            const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'click', 'touchstart'];
-            events.forEach(event => {
+
+            const event = ['mousedown', 'mousemove', 'keypress', 'scroll', 'click', 'touchstart', 'touchend'];
+            event.forEach(event => {
                 document.removeEventListener(event, resetInactivityTimer);
                 document.addEventListener(event, resetInactivityTimer);
-            });
+            })
         }
-        
-        // ========== LOGIN ==========
+
+        function nettoyerSessionAvantFermeture() {
+            sessionStorage.removeItem('is-connected');
+            sessionStorage.removeItem('user-name');
+            
+            const fullNameField = document.getElementById('fullName');
+            const passwordField = document.getElementById('password');
+            if (fullNameField) fullNameField.value = '';
+            if (passwordField) passwordField.value = '';
+        }
+
+        window.addEventListener('beforeunload', function() {
+            nettoyerSessionAvantFermeture();
+        });
+
+        window.addEventListener('pagehide', function() {
+            nettoyerSessionAvantFermeture();
+        });
+
+        // ========== LOGIQUE D'ACCÈS ==========
+
         const identifiantsValides = [
             { nom: "5CG4", motDePasse: "+1234+" },
             { nom: "5DG2", motDePasse: "+5678+" },
@@ -591,95 +805,215 @@
             const nom = document.getElementById('fullName').value.trim();
             const motDePasse = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMessage');
-            const utilisateurValide = identifiantsValides.find(u => u.nom === nom && u.motDePasse === motDePasse);
-            
+            const verrouillage = document.getElementById('verrouillage');
+        
+            const utilisateurValide = identifiantsValides.find(
+                user => user.nom === nom && user.motDePasse === motDePasse
+            );
+
             if (utilisateurValide) {
+                // Vérifier si c'est l'utilisateur "Ami" pour enregistrer les statistiques
                 let visitorStats = null;
-                if (nom === "Ami") visitorStats = registerVisitor(nom);
+                
+                if (nom === "Ami") {
+                    // Enregistrer le visiteur uniquement pour "Ami"
+                    visitorStats = registerVisitor(nom);
+                }
+                
                 sessionStorage.setItem('user-name', nom);
                 sessionStorage.setItem('is-connected', 'true');
+                
                 document.getElementById('contenu-page').style.display = 'block';
-                document.getElementById('verrouillage').style.display = 'none';
-                document.querySelector('.tab-button[onclick*="classe5"]').style.display = 'inline-flex';
-                document.getElementById('messageBienvenue').innerHTML = 'Bonjour dans la classe de ' + nom + ' ! 👋';
-                toggleVisitorStats(nom);
-                updateWatermark();
-                if (nom === "Ami" && visitorStats) {
-                    alert(`Bienvenue ${nom} !\n📊 Vous êtes le ${visitorStats.count}e visiteur`);
-                } else {
-                    alert(`Bienvenue ${nom} !`);
+                verrouillage.style.display = 'none';
+                
+                const boutonAccueil = document.querySelector('.tab-button[onclick*="accueil"]');
+                if (boutonAccueil) {
+                    boutonAccueil.style.display = 'inline-flex';
                 }
+                
+                const boutonClasse5 = document.querySelector('.tab-button[onclick*="classe5"]');
+                if (boutonClasse5) {
+                    boutonClasse5.style.display = 'inline-flex';
+                }
+
+                const titreAccueil = document.getElementById('messageBienvenue');
+                if (titreAccueil) {
+                    titreAccueil.innerHTML = 'Bonjour dans la classe de ' + nom + ' ! 👋';
+                }
+                
+                // Afficher ou cacher les statistiques selon l'utilisateur
+                toggleVisitorStats(nom);
+                
+                // Ajouter un filigrane après connexion
+                addWatermark();
+
+                // Message de bienvenue avec ou sans stats
+                if (nom === "Ami" && visitorStats) {
+                    alert(`Bienvenue mon élève de ${nom} !\n\n📊 Statistiques :\n• Vous êtes le ${visitorStats.count}e visiteur\n• Dernier visiteur : ${visitorStats.lastVisitor.name} (${visitorStats.lastVisitor.date})`);
+                } else {
+                    alert(`Bienvenue mon élève de ${nom} !`);
+                }
+
                 startInactivityMonitoring();
             } else {
+                const erreurCode = document.getElementById('erreur-code');
+                erreurCode.style.display = 'block';
                 errorDiv.textContent = 'Nom ou mot de passe incorrect.';
-                errorDiv.style.display = 'block';
-                setTimeout(() => errorDiv.style.display = 'none', 3000);
+                errorDiv.style.display = 'block';    
             }
         }
-        
-        document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') seConnecter();
+
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                seConnecter();
+            }
         });
-        
-        // ========== GALERIE ==========
+
+        // ========== GALERIE PHOTO ==========
         let indexActuel = 0;
         let photosActuelles = [];
         const modele = document.getElementById("modele");
         const imageModele = document.getElementById("imageModele");
-        
+
         function ouvrirPleinEcran(index, idOnglet) {
             photosActuelles = document.querySelectorAll('#' + idOnglet + ' .gallery img');
+        
             if (!photosActuelles.length) return;
+        
             indexActuel = index;
+        
             modele.style.display = "flex";
             imageModele.src = photosActuelles[indexActuel].src;
+        
             try {
-                const imageId = photosActuelles[indexActuel].dataset.id;
-                const compteur = document.getElementById('counter_' + imageId);
-                if (compteur) compteur.textContent = parseInt(compteur.textContent) + 1;
-            } catch(e) {}
+                const imageActuelle = photosActuelles[indexActuel];
+                const imageId = imageActuelle.dataset.id;
+        
+                if (imageId) {
+                    const compteur = document.getElementById('counter_' + imageId);
+        
+                    if (compteur) {
+                        let nombre = parseInt(compteur.textContent) || 0;
+                        nombre++;
+                        compteur.textContent = nombre;
+                    }
+                }
+            } catch(error) {
+                console.log("Erreur compteur :", error);
+            }
         }
-        
-        function fermerPleinEcran() { modele.style.display = "none"; }
-        function photoSuivante() { if (photosActuelles.length) { indexActuel = (indexActuel + 1) % photosActuelles.length; imageModele.src = photosActuelles[indexActuel].src; } }
-        function photoPrecedente() { if (photosActuelles.length) { indexActuel = (indexActuel - 1 + photosActuelles.length) % photosActuelles.length; imageModele.src = photosActuelles[indexActuel].src; } }
-        
+
+        function fermerPleinEcran() {
+            modele.style.display = "none";
+        }
+
+        function photoSuivante() {
+            if (photosActuelles.length === 0) return;
+            indexActuel = (indexActuel + 1) % photosActuelles.length;
+            imageModele.src = photosActuelles[indexActuel].src;
+        }
+
+        function photoPrecedente() {
+            if (photosActuelles.length === 0) return;
+            indexActuel = (indexActuel - 1 + photosActuelles.length) % photosActuelles.length;
+            imageModele.src = photosActuelles[indexActuel].src;
+        }
+
         document.addEventListener('keydown', (e) => {
-            if (modele.style.display === "flex") {
+            if (modele && modele.style.display === "flex") {
                 if (e.key === "ArrowRight") photoSuivante();
                 if (e.key === "ArrowLeft") photoPrecedente();
                 if (e.key === "Escape") fermerPleinEcran();
             }
-            if (sessionStorage.getItem('is-connected') === 'true') resetInactivityTimer();
+            if (sessionStorage.getItem('is-connected') === 'true') {
+                resetInactivityTimer();
+            }
         });
-        
+
         function verifierConnexionExistante() {
             if (sessionStorage.getItem('is-connected') === 'true') {
                 const nom = sessionStorage.getItem('user-name');
+                
                 document.getElementById('contenu-page').style.display = 'block';
                 document.getElementById('verrouillage').style.display = 'none';
-                document.querySelector('.tab-button[onclick*="classe5"]').style.display = 'inline-flex';
-                document.getElementById('messageBienvenue').innerHTML = 'Bonjour dans la classe ' + nom + ' ! 👋';
+                
+                const boutonAccueil = document.querySelector('.tab-button[onclick*="accueil"]');
+                if (boutonAccueil) {
+                    boutonAccueil.style.display = 'inline-flex';
+                }
+                
+                const boutonClasse5 = document.querySelector('.tab-button[onclick*="classe5"]');
+                if (boutonClasse5) {
+                    boutonClasse5.style.display = 'inline-flex';
+                }
+                
+                const titreAccueil = document.getElementById('messageBienvenue');
+                if (titreAccueil) {
+                    titreAccueil.innerHTML = 'Bonjour dans la classe ' + nom + ' ! 👋';
+                }
+                
+                // Afficher ou cacher les statistiques selon l'utilisateur
                 toggleVisitorStats(nom);
-                updateWatermark();
+                
+                // Ajouter le filigrane
+                addWatermark();
+
                 startInactivityMonitoring();
             }
         }
-        
-        function ouvrirOnglet(evt, nomOnglet) {
-            if (sessionStorage.getItem('is-connected') === 'true') resetInactivityTimer();
-            document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
-            document.querySelectorAll('.tab-button').forEach(tb => tb.classList.remove('active'));
-            document.getElementById(nomOnglet).style.display = 'block';
-            if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
-        }
-        
+
         window.onload = function() {
+            // Initialiser le compteur de visiteurs (mais sans l'afficher)
             initVisitorCounter();
-            document.getElementById('visitorStatsContainer').style.display = 'none';
+            
+            // Cacher les statistiques par défaut
+            const statsContainer = document.getElementById('visitorStatsContainer');
+            if (statsContainer) {
+                statsContainer.style.display = 'none';
+            }
+            
             verifierConnexionExistante();
-            document.addEventListener('contextmenu', (e) => e.preventDefault());
-        };
+            
+            // Désactiver le clic droit sur les images
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target.tagName === "IMG") {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        function ouvrirOnglet(evt, nomOnglet) {
+            if (sessionStorage.getItem('is-connected') === 'true') {
+                resetInactivityTimer();
+            }
+
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].style.display = "none";
+            }
+
+            let tabButtons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+
+            document.getElementById(nomOnglet).style.display = "block";
+
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add("active");
+            }
+        }
+
+        if (document) {
+            const eventsToMonitor = ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+            eventsToMonitor.forEach(event => {
+                document.addEventListener(event, function() {
+                    if (sessionStorage.getItem('is-connected') === 'true') {
+                        resetInactivityTimer();
+                    }
+                });
+            });
+        }
     </script>
 </body>
 </html>
